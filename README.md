@@ -7,55 +7,61 @@
 ## 1. Informações Gerais
 
 ### 1.1. Conceito
-Jogo de ação em que o jogador controla um guerreiro das estrelas empunhando um sabre de energia vermelho. O objetivo é eliminar inimigos e avançar pelas salas da nave até conquistá-la por completo.
+Jogo de ação, onde o jogador controla um guerreiro das estrelas, usando um sabre de energia vermelho enquanto elimina inimigos e avança pela nave até conquistá-la por completo.
 
-- **Gênero:** Ação
-- **Mecânica principal:** Combate com sabre de energia vermelho. O jogador derrota inimigos enquanto se movimenta pelas salas da nave.
-- **Stamina:** Permite deslocar-se em velocidade aumentada por tempo limitado, útil para alcançar ou desviar de inimigos e obstáculos.
+- **Gênero:** Ação.
+- **Mecânica:** A principal mecânica é o combate com o sabre de energia vermelho, que o jogador usa para eliminar os inimigos ao seu redor enquanto se movimenta pelas salas da nave. O personagem também possui stamina, que o permite deslocar no dobro da velocidade por um tempo determinado, útil para alcançar ou desviar de inimigos e obstáculos.
 
 ### 1.2. Regras do Jogo
-- O jogador deve eliminar todos os inimigos de cada sala usando o sabre de energia.
+- O jogador deve usar seu sabre de energia para eliminar todos os inimigos de cada sala.
 - Ao derrotar todos os inimigos, o jogador avança para a próxima fase.
-- Cada fase varia no número de inimigos e obstáculos.
-- O objetivo final é chegar à última sala da nave, dominá-la por completo e vencer o jogo.
+- Cada fase pode variar no número de inimigos e obstáculos presentes.
+- O objetivo final é chegar à última sala da nave, dominá-la e vencer o jogo.
 - Ao morrer, o personagem retorna ao início da fase atual.
 
-### Controles
-- **W** — Mover para cima
-- **A** — Mover para baixo
-- **S** — Mover para a esquerda
+### 1.3. Controles
+O jogo é controlado pelo teclado:
+
+- **W** — Mover para frente
+- **A** — Mover para a esquerda
+- **S** — Mover para trás
 - **D** — Mover para a direita
 - **Mouse** — Rotaciona o personagem
 - **Botão esquerdo do mouse** — Atacar com o sabre de energia
-- **Shift** — Ativa a stamina enquanto pressionado (se a stamina se esgotar, só pode ser usada novamente após recarga completa)
+- **Shift** — Ativa a stamina enquanto segura (se usar toda a stamina, só poderá usar novamente quando ela for recarregada por completo)
 - **Esc** — Pausar o jogo
 
-### 1.3. Referências
-O jogo tem referências estéticas em **LEGO Star Wars** e na saga **Star Wars**. A inspiração inclui:
+### 1.4. Referências
+O jogo tem como referência estética o LEGO Star Wars (Figura 1) — jogo de ação e aventura em terceira pessoa, com combate tanto no chão quanto em naves espaciais.
 
-- LEGO Star Wars: The Force Awakens — ação e aventura em terceira pessoa, com combate em solo e em naves espaciais.
-- Figura 2: LEGO Star Wars Darth Vader Minifigure com sabre de luz e capa preta.
-- Figura 3: Attack of the LEGO Clones, que inspira o design dos inimigos.
+- **Figura 1:** (Vita) LEGO Star Wars: The Force Awakens review.
+  Disponível em https://kresnik258gaming.wordpress.com/2018/12/10/vita-lego-star-wars-the-force-awakens-review/
+- **Figura 2:** LEGO Star Wars: Darth Vader Minifigure with Lightsaber and Extra Black Cape (inspiração do personagem principal).
+  Disponível em http://amazon.com.br/LEGO-Star-Wars-Minifigure-Lightsaber/dp/B0BN93RGGB
+- **Figura 3:** 2002 — Attack of the LEGO Clones (inspiração dos inimigos).
+  Disponível em https://blocksmag.com/history-of-the-lego-star-wars-clone-trooper-phase-i/
+
+O jogo tem como referência estética Star Wars (saga cinematográfica) e a franquia LEGO Star Wars, especialmente as figuras em LEGO de Darth Vader, que inspiram o design do personagem principal, e Clone Wars, que inspiram os inimigos.
 
 ## 2. Personagens
 
 ### Valek
 - **Tipo:** Player
-- **Descrição:** Guerreiro das estrelas inspirado no lado sombrio da Força. Veste armadura negra e empunha um sabre de energia de lâmina vermelha. Sua missão é conquistar a nave inimiga eliminando toda a tripulação sala a sala. Possui alta habilidade de combate e stamina para deslocar-se rapidamente.
+- **Descrição:** Guerreiro das estrelas inspirado no lado sombrio da Força. Veste uma armadura negra e empunha um sabre de energia de lâmina vermelha. Sua missão é conquistar a nave inimiga, eliminando toda a tripulação sala a sala. Possui alta habilidade de combate e uma stamina que o desloca rapidamente pelo campo de batalha.
 
 ### Klonar
 - **Tipo:** Inimigo simples
-- **Descrição:** Soldados básicos da nave. Usam armaduras brancas resistentes e rifles de energia. São a força militar principal da nave inimiga e aparecem na primeira sala.
+- **Descrição:** Soldados básicos da nave. Tropa usando armaduras brancas resistentes e rifles de energia. Representam a força militar principal da nave inimiga, sendo localizados na primeira sala.
 
 ### Verminox
-- **Tipo:** Chefe
-- **Descrição:** Unidades de elite agressivas com armaduras vermelhas e treinamento avançado. Mais rápidos e precisos que os Klonars, atuam como guardas especiais nas áreas críticas da nave, presentes na segunda sala.
+- **Tipo:** Inimigo intermediário
+- **Descrição:** Unidades de elite agressivas, reconhecidas pelas armaduras vermelhas e treinamento avançado. Mais rápidos, precisos e violentos que os Klonars, servem como guardas especiais das áreas críticas da nave, sendo localizados na segunda sala.
 
 ### Noctar
-- **Tipo:** Chefe
-- **Descrição:** Tropas finais e mais temidas. Guerreiros com armaduras pretas táticas, soldados mais especializados e exterminadores de alta prioridade, localizados na terceira e última sala.
+- **Tipo:** Inimigo especialista
+- **Descrição:** A tropa final e mais temida. Guerreiros usando armaduras pretas táticas, são os soldados mais especializados. Operam como exterminadores de alta prioridade, sendo localizados na área mais importante da nave: a terceira e última sala.
 
 ## 3. Level Design
 
 ### 3.1. O mundo do jogo
-O jogo se passa inteiramente em uma nave espacial no espaço. O jogador percorre diferentes salas da nave, enfrenta inimigos e obstáculos em cada fase. A progressão ocorre sala a sala, até a última sala ser dominada por completo. O cenário muda de sala para sala, variando o número de inimigos e obstáculos.
+O jogo se passa inteiramente em uma nave espacial que voa no espaço. O jogador percorre as diferentes salas da nave, enfrentando inimigos e obstáculos em cada fase. A progressão ocorre sala a sala, até o jogador chegar à última sala da nave e dominá-la por completo, encontrando o caixão de sua esposa. O cenário muda de sala para sala, variando o número de inimigos e os obstáculos presentes.
