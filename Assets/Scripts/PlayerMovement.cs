@@ -30,6 +30,21 @@ public class PlayerMovement : MonoBehaviour
     // controla se o player está exausto
     bool exhausted = false;
 
+    // Audio Source responsável pelos sons de movimento
+    public AudioSource audioSource;
+
+    // lista com os 8 sons de corrida
+    public AudioClip[] footstepSounds;
+
+    // intervalo entre os passos andando
+    public float walkStepInterval = 0.5f;
+
+    // intervalo entre os passos correndo
+    public float sprintStepInterval = 0.3f;
+
+    // controla quando tocar o próximo passo
+    float stepTimer = 0f;
+
     // executa ao iniciar a cena
     void Start()
     {
@@ -79,6 +94,42 @@ public class PlayerMovement : MonoBehaviour
 
         // verifica se o player está tentando se mover
         bool isMoving = moveDirection.magnitude > 0f;
+
+        // controla os sons de passos
+        if (isMoving)
+        {
+            // escolhe o intervalo baseado na velocidade
+            float currentInterval = Input.GetKey(KeyCode.LeftShift)
+                && currentStamina > 0f
+                && !exhausted
+                ? sprintStepInterval
+                : walkStepInterval;
+
+            // diminui o contador
+            stepTimer -= Time.fixedDeltaTime;
+
+            // hora de tocar um novo passo
+            if (stepTimer <= 0f)
+            {
+                // evita erro caso nenhum som tenha sido configurado
+                if (footstepSounds.Length > 0)
+                {
+                    // escolhe um dos 8 sons aleatoriamente
+                    int randomIndex = Random.Range(0, footstepSounds.Length);
+
+                    // toca o som
+                    audioSource.PlayOneShot(footstepSounds[randomIndex]);
+                }
+
+                // reinicia o contador
+                stepTimer = currentInterval;
+            }
+        }
+        else
+        {
+            // quando parar de andar, reinicia o contador
+            stepTimer = 0f;
+        }
 
         // verifica se pode correr
         bool isSprinting =

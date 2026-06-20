@@ -36,6 +36,9 @@ public class InGameController : MonoBehaviour
         // garante que o jogo começa sem pausa
         Time.timeScale = 1f;
 
+        // garante que os áudios iniciam ativos
+        AudioListener.pause = false;
+
         // esconde o menu de pausa
         pauseMenu.SetActive(false);
 
@@ -95,6 +98,9 @@ public class InGameController : MonoBehaviour
         // pausa ou continua o tempo do jogo
         Time.timeScale = isPaused ? 0f : 1f;
 
+        // pausa ou continua todos os sons do jogo
+        AudioListener.pause = isPaused;
+
         // verifica se existe componente da câmera
         if (cinemachineInput != null)
         {
@@ -140,6 +146,9 @@ public class InGameController : MonoBehaviour
     {
         // garante que o jogo não fique pausado
         Time.timeScale = 1f;
+
+        // garante que os áudios voltem ao normal
+        AudioListener.pause = false;
 
         // libera cursor antes de trocar de cena
         Cursor.lockState = CursorLockMode.None;

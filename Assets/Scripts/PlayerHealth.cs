@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,7 +12,6 @@ public class PlayerHealth : MonoBehaviour
     public float currentHealth;
 
     // nome da cena para respawn
-    // pode escolher no Inspector
     public string respawnScene;
 
     // nome da cena de derrota final
@@ -19,6 +19,15 @@ public class PlayerHealth : MonoBehaviour
 
     // quantidade máxima de vidas
     public int maxLives = 3;
+
+    // som de morte
+    public AudioClip deathSound;
+
+    // componente de áudio
+    private AudioSource audioSource;
+
+    // impede executar a morte mais de uma vez
+    private bool isDead = false;
 
     // quantidade de mortes atuais
     // static mantém o valor entre cenas
@@ -29,28 +38,68 @@ public class PlayerHealth : MonoBehaviour
     {
         // começa com vida cheia
         currentHealth = maxHealth;
+
+        // pega o AudioSource do objeto
+        audioSource = GetComponent<AudioSource>();
     }
 
     // recebe dano
     public void TakeDamage(float damage)
     {
+        // ignora dano se já morreu
+        if (isDead)
+            return;
+
         // diminui a vida atual
         currentHealth -= damage;
 
         // impede vida negativa
         if (currentHealth <= 0f)
         {
-            // trava vida em zero
             currentHealth = 0f;
+            isDead = true;
 
-            // executa morte
-            Die();
+            StartCoroutine(Die());
         }
     }
 
     // controla morte do player
-    void Die()
+    IEnumerator Die()
     {
+        // desabilita todos os scripts do player
+        MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour script in scripts)
+        {
+            if (script != this)
+                script.enabled = false;
+        }
+
+        // para Rigidbody2D
+        Rigidbody2D rb2D = GetComponent<Rigidbody2D>();
+        if (rb2D != null)
+        {
+            rb2D.linearVelocity = Vector2.zero;
+            rb2D.simulated = false;
+        }
+
+        // para Rigidbody 3D
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
+        // toca o som de morte
+        if (deathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+
+            // espera terminar
+            yield return new WaitForSeconds(deathSound.length);
+        }
+
         // adiciona uma morte
         deathCount++;
 
@@ -66,7 +115,7 @@ public class PlayerHealth : MonoBehaviour
         else
         {
             // verifica se existe uma cena definida
-            if (respawnScene != "")
+            if (!string.IsNullOrEmpty(respawnScene))
             {
                 // carrega cena escolhida
                 SceneManager.LoadScene(respawnScene);

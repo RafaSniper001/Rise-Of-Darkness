@@ -9,11 +9,17 @@ public class TrapDamage : MonoBehaviour
     // dano causado ao player
     public float damage = 100f;
 
+    // som do laser ligado
+    public AudioClip laserSound;
+
     // renderer do objeto
     Renderer objectRenderer;
 
     // collider do objeto
     Collider objectCollider;
+
+    // áudio
+    AudioSource audioSource;
 
     // contador interno
     float timer;
@@ -25,15 +31,28 @@ public class TrapDamage : MonoBehaviour
     void Start()
     {
         // pega renderer do objeto
-        objectRenderer =
-            GetComponent<Renderer>();
+        objectRenderer = GetComponent<Renderer>();
 
         // pega collider do objeto
-        objectCollider =
-            GetComponent<Collider>();
+        objectCollider = GetComponent<Collider>();
+
+        // pega áudio
+        audioSource = GetComponent<AudioSource>();
 
         // garante que o collider seja trigger
         objectCollider.isTrigger = true;
+
+        // configura áudio
+        if (audioSource != null)
+        {
+            audioSource.clip = laserSound;
+            audioSource.loop = true;
+
+            if (isVisible && laserSound != null)
+            {
+                audioSource.Play();
+            }
+        }
     }
 
     // executa todo frame
@@ -64,6 +83,20 @@ public class TrapDamage : MonoBehaviour
 
         // ativa ou desativa o trigger
         objectCollider.enabled = isVisible;
+
+        // controla som
+        if (audioSource != null)
+        {
+            if (isVisible)
+            {
+                if (!audioSource.isPlaying)
+                    audioSource.Play();
+            }
+            else
+            {
+                audioSource.Stop();
+            }
+        }
     }
 
     // executa quando algo entra no laser

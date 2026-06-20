@@ -6,14 +6,24 @@ public class Sword : MonoBehaviour
     // dano da espada
     public float damage;
 
+    // sons do sabre
+    public AudioClip[] attackSounds;
+
     // referência do animator
     Animator animator;
+
+    // Audio Source do player
+    AudioSource audioSource;
 
     // executa ao iniciar
     void Start()
     {
         // pega animator
         animator = GetComponent<Animator>();
+
+        // pega Audio Source do player
+        audioSource =
+            GetComponentInParent<AudioSource>();
     }
 
     // executa ataque
@@ -28,6 +38,23 @@ public class Sword : MonoBehaviour
         {
             // impede ataque duplicado
             return;
+        }
+
+        // toca som apenas se o ataque for válido
+        if (
+            audioSource != null &&
+            attackSounds.Length > 0
+        )
+        {
+            int randomIndex =
+                Random.Range(
+                    0,
+                    attackSounds.Length
+                );
+
+            audioSource.PlayOneShot(
+                attackSounds[randomIndex]
+            );
         }
 
         // toca animação

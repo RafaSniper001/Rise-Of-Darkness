@@ -74,6 +74,12 @@ public class Chase : MonoBehaviour
     // controla cooldown do tiro
     float nextFireTime;
 
+    // sons de tiro do inimigo
+    public AudioClip[] shotSounds;
+
+    // fonte de áudio dos tiros
+    AudioSource audioSource;
+
     [Header("Empurrão")]
 
     // distância total do empurrão
@@ -166,6 +172,9 @@ public class Chase : MonoBehaviour
 
         // salva fire rate original
         baseFireRate = fireRate;
+
+        // pega o Audio Source do inimigo
+        audioSource = GetComponent<AudioSource>();
     }
 
     // executa todo frame
@@ -420,6 +429,23 @@ public class Chase : MonoBehaviour
             firePoint.position,
             firePoint.rotation
         );
+
+        // toca um dos sons de tiro aleatoriamente
+        if (
+            audioSource != null &&
+            shotSounds.Length > 0
+        )
+        {
+            int randomIndex =
+                Random.Range(
+                    0,
+                    shotSounds.Length
+                );
+
+            audioSource.PlayOneShot(
+                shotSounds[randomIndex]
+            );
+        }
     }
 
     // inicia empurrão
