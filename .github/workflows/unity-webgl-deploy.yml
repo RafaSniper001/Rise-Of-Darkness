@@ -26,20 +26,23 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_VERSION: 6000.3.3f1
         with:
           targetPlatform: WebGL
           projectPath: .
           buildName: RiseOfDarkness
-          buildMethod: BuildScript.Build
+          customImage: unityci/editor:6000.3.3f1-webgl-2
+          unityVersion: 6000.3.3f1
 
       - name: Upload artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: WebGL-build
           path: build/WebGL
 
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && success()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
