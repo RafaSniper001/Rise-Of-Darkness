@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class ScanCameraController : MonoBehaviour
 {
+    private static ScanCameraController instance;
+
     [Header("Scan Preview")]
     [SerializeField] private RawImage previewImage;
     [SerializeField] private string targetSceneName = "ScanPage";
@@ -15,6 +17,18 @@ public class ScanCameraController : MonoBehaviour
     [SerializeField] private int requestedFps = 30;
 
     private WebCamTexture webcamTexture;
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Start()
     {
