@@ -11,50 +11,99 @@ public class InGameHUD : MonoBehaviour
     // movimento/stamina do player
     public PlayerMovement playerMovement;
 
-    // slider da vida
+    // vida do inimigo/boss
+    public EnemyHealth enemyHealth;
+
+    // slider da vida do player
     public Slider healthSlider;
 
     // slider da stamina
     public Slider staminaSlider;
+
+    // slider da vida do inimigo/boss
+    public Slider enemyHealthSlider;
 
     // texto das vidas
     public TMP_Text livesText;
 
     void Start()
     {
-        // configura barra de vida
-        if (healthSlider != null && playerHealth != null)
+        // configura barra de vida do player
+        if (healthSlider != null &&
+            playerHealth != null)
         {
-            healthSlider.maxValue = playerHealth.maxHealth;
-            healthSlider.value = playerHealth.currentHealth;
+            healthSlider.maxValue =
+                playerHealth.maxHealth;
+
+            healthSlider.value =
+                playerHealth.currentHealth;
         }
 
         // configura barra de stamina
-        if (staminaSlider != null && playerMovement != null)
+        if (staminaSlider != null &&
+            playerMovement != null)
         {
-            staminaSlider.maxValue = playerMovement.maxStamina;
-            staminaSlider.value = playerMovement.currentStamina;
+            staminaSlider.maxValue =
+                playerMovement.maxStamina;
+
+            staminaSlider.value =
+                playerMovement.currentStamina;
+        }
+
+        // configura barra de vida do inimigo
+        if (enemyHealthSlider != null &&
+            enemyHealth != null)
+        {
+            enemyHealthSlider.maxValue =
+                enemyHealth.maxHealth;
+
+            enemyHealthSlider.value =
+                enemyHealth.currentHealth;
         }
     }
 
     void Update()
     {
-        // atualiza barra de vida
-        if (healthSlider != null && playerHealth != null)
+        // atualiza vida do player
+        if (healthSlider != null &&
+            playerHealth != null)
         {
-            healthSlider.value = playerHealth.currentHealth;
+            healthSlider.maxValue =
+                playerHealth.maxHealth;
+
+            healthSlider.value =
+                playerHealth.currentHealth;
         }
 
-        // atualiza barra de stamina
-        if (staminaSlider != null && playerMovement != null)
+        // atualiza stamina
+        if (staminaSlider != null &&
+            playerMovement != null)
         {
-            staminaSlider.value = playerMovement.currentStamina;
+            staminaSlider.maxValue =
+                playerMovement.maxStamina;
+
+            staminaSlider.value =
+                playerMovement.currentStamina;
+        }
+
+        // atualiza vida do inimigo
+        if (enemyHealthSlider != null &&
+            enemyHealth != null)
+        {
+            enemyHealthSlider.maxValue =
+                enemyHealth.maxHealth;
+
+            enemyHealthSlider.value =
+                enemyHealth.currentHealth;
         }
 
         // atualiza texto das vidas
-        if (livesText != null && playerHealth != null)
+        if (livesText != null &&
+            playerHealth != null)
         {
-            livesText.text = "Vidas: " + playerHealth.GetLivesRemaining();
+            livesText.text =
+                "Vidas: " +
+                playerHealth.GetLivesRemaining();
         }
     }
 }

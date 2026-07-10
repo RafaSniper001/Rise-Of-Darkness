@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemtStatus : MonoBehaviour
 {
     // vida inicial do inimigo
-    public float life = 10;
+    public float life = 10f;
 
     // som de morte do inimigo
     public AudioClip deathSound;
@@ -12,14 +12,62 @@ public class EnemtStatus : MonoBehaviour
     // Audio Source dos efeitos
     AudioSource audioSource;
 
-    // executa ao iniciar
+    float baseLife;
+    float currentLife;
+    float previousMultiplier = 1f;
+
+    void Awake()
+    {
+        baseLife = life;
+        currentLife = life;
+        previousMultiplier = 1f;
+        ApplyDifficulty(GameSettings.difficultyMultiplier, true);
+
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    void OnEnable()
+    {
+        GameSettings.OnDifficultyChanged += ApplyDifficulty;
+    }
+
+    void OnDisable()
+    {
+        GameSettings.OnDifficultyChanged -= ApplyDifficulty;
+    }
+
     void Start()
     {
-        // aumenta vida conforme dificuldade
-        life *= GameSettings.difficultyMultiplier;
+        ApplyDifficulty(GameSettings.difficultyMultiplier);
+    }
 
-        // pega o Audio Source do inimigo
-        audioSource = GetComponent<AudioSource>();
+    void ApplyDifficulty(float multiplier)
+    {
+        ApplyDifficulty(multiplier, false);
+    }
+
+    void ApplyDifficulty(float multiplier, bool initialSetup)
+    {
+        if (baseLife <= 0f)
+        {
+            baseLife = life;
+        }
+
+        if (initialSetup)
+        {
+            currentLife = baseLife * multiplier;
+            life = Mathf.Max(0f, currentLife);
+            previousMultiplier = multiplier;
+            return;
+        }
+
+        float healthPercent = currentLife > 0f && previousMultiplier > 0f
+            ? currentLife / (baseLife * previousMultiplier)
+            : 1f;
+
+        currentLife = baseLife * multiplier * healthPercent;
+        life = Mathf.Max(0f, currentLife);
+        previousMultiplier = multiplier;
     }
 
     // executa quando o inimigo leva dano
@@ -27,6 +75,7 @@ public class EnemtStatus : MonoBehaviour
     {
         // reduz vida
         life -= damage;
+        currentLife = life;
 
         // verifica se morreu
         if (life <= 0)

@@ -1,97 +1,112 @@
+using System.Collections;
 using UnityEngine;
 
-// controla a espada
 public class Sword : MonoBehaviour
 {
-    // dano da espada
-    public float damage;
+    public float damage = 25f;
 
-    // sons do sabre
     public AudioClip[] attackSounds;
 
-    // referência do animator
+    public float damageWindow = 0.5f;
+
     Animator animator;
-
-    // Audio Source do player
     AudioSource audioSource;
+    PlayerPower playerPower;
 
-    // executa ao iniciar
+    bool canDamage = false;
+    bool alreadyHit = false;
+
     void Start()
     {
-        // pega animator
         animator = GetComponent<Animator>();
-
-        // pega Audio Source do player
-        audioSource =
-            GetComponentInParent<AudioSource>();
+        audioSource = GetComponentInParent<AudioSource>();
+        playerPower = GetComponentInParent<PlayerPower>();
     }
 
-    // executa ataque
     public void Attack()
     {
-        // verifica se já está atacando
-        if (
-            animator
-            .GetCurrentAnimatorStateInfo(0)
-            .IsName("Ataque Sabre")
-        )
+        if (animator != null &&
+            animator.GetCurrentAnimatorStateInfo(0).IsName("Ataque Sabre"))
         {
-            // impede ataque duplicado
             return;
         }
 
-        // toca som apenas se o ataque for válido
-        if (
-            audioSource != null &&
-            attackSounds.Length > 0
-        )
+        if (audioSource != null && attackSounds.Length > 0)
         {
-            int randomIndex =
-                Random.Range(
-                    0,
-                    attackSounds.Length
-                );
-
-            audioSource.PlayOneShot(
-                attackSounds[randomIndex]
-            );
+            int randomIndex = Random.Range(0, attackSounds.Length);
+            audioSource.PlayOneShot(attackSounds[randomIndex]);
         }
 
-        // toca animação
-        animator.CrossFade(
-            "Ataque Sabre",
-            0f,
-            0,
-            0f
-        );
+        if (animator != null)
+        {
+            animator.CrossFade("Ataque Sabre", 0f, 0, 0f);
+        }
+
+        StopAllCoroutines();
+        StartCoroutine(DamageWindow());
     }
 
-    // detecta colisão da espada
+    IEnumerator DamageWindow()
+    {
+        canDamage = true;
+        alreadyHit = false;
+
+        yield return new WaitForSeconds(damageWindow);
+
+        canDamage = false;
+    }
+
     private void OnTriggerEnter(Collider collision)
     {
-        // pega vida do inimigo
-        EnemtStatus enemyStatus =
-            collision.gameObject
-            .GetComponent<EnemtStatus>();
+        if (!canDamage || alreadyHit)
+            return;
 
-        // verifica se acertou inimigo
+        bool hitEnemy = false;
+
+        EnemtStatus enemyStatus =
+            collision.gameObject.GetComponent<EnemtStatus>();
+
         if (enemyStatus != null)
         {
-            // aplica dano
             enemyStatus.GetHit(damage);
+            hitEnemy = true;
+        }
 
-            // pega script Chase do inimigo
+        EnemyHealth enemyHealth =
+            collision.gameObject.GetComponent<EnemyHealth>();
+
+        if (enemyHealth != null)
+        {
+            float finalDamage = damage;
+
+            BossChase bossChase =
+                collision.gameObject.GetComponent<BossChase>();
+
+            if (bossChase != null)
+            {
+                finalDamage =
+                    damage / GameSettings.difficultyMultiplier;
+            }
+
+            enemyHealth.TakeDamage(finalDamage);
+            hitEnemy = true;
+        }
+
+        if (hitEnemy)
+        {
+            alreadyHit = true;
+
+            if (playerPower != null)
+            {
+                playerPower.AddPower();
+            }
+
             Chase chase =
-                collision.gameObject
-                .GetComponent<Chase>();
+                collision.gameObject.GetComponent<Chase>();
 
-            // verifica se possui Chase
             if (chase != null)
             {
-                // empurra inimigo
-                chase.PushAwayFrom(
-                    transform.position
-                );
+                chase.PushAwayFrom(transform.position);
             }
         }
     }

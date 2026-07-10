@@ -53,26 +53,38 @@
     <Compile Include="Assets\Scripts\EnemtStatus.cs" />
     <Compile Include="Assets\Scripts\Rotacao.cs" />
     <Compile Include="Assets\Scripts\GameSettings.cs" />
+    <Compile Include="Assets\Scripts\DeathZone.cs" />
     <Compile Include="Assets\Scripts\PlayerHealth.cs" />
+    <Compile Include="Assets\Scripts\BossSword.cs" />
     <Compile Include="Assets\Scripts\SabreLightFlicker.cs" />
+    <Compile Include="Assets\Scripts\GameSaveManager.cs" />
+    <Compile Include="Assets\Scripts\PlayerPower.cs" />
     <Compile Include="Assets\Scripts\Chase.cs" />
     <Compile Include="Assets\Scripts\AudioSettings.cs" />
     <Compile Include="Assets\Scripts\SkyboxFollowObject.cs" />
     <Compile Include="Assets\Scripts\TrapShooter.cs" />
     <Compile Include="Assets\Scripts\ThirdPersonCamera.cs" />
     <Compile Include="Assets\Scripts\MovingTrap.cs" />
+    <Compile Include="Assets\Scripts\BossChase.cs" />
     <Compile Include="Assets\Scripts\InGameController.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Scripts\EnemyBullet.cs" />
+    <Compile Include="Assets\Scripts\NextSceneButton.cs" />
     <Compile Include="Assets\Scripts\PlayerAttack.cs" />
+    <Compile Include="Assets\Scripts\CheckpointManager.cs" />
     <Compile Include="Assets\Scripts\InGameHUD.cs" />
     <Compile Include="Assets\Scripts\BBFollow.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\RotacaoEstrelaDaMorte.cs" />
     <Compile Include="Assets\Scripts\MainMenuController.cs" />
+    <Compile Include="Assets\Scripts\ScanCameraController.cs" />
     <Compile Include="Assets\Scripts\FinalButton.cs" />
+    <Compile Include="Assets\Scripts\EnemySpawner.cs" />
+    <Compile Include="Assets\Scripts\BossAttack.cs" />
+    <Compile Include="Assets\Scripts\EnemyHealth.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Sword.cs" />
+    <Compile Include="Assets\Scripts\BossAura.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -1300,12 +1312,12 @@
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.Mathematics">
-      <HintPath>Library\ScriptAssemblies\Unity.Mathematics.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Unity.VisualEffectGraph.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.VisualEffectGraph.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>Library\ScriptAssemblies\Unity.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Shaders">

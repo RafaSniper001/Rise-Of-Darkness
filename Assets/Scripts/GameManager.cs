@@ -1,49 +1,83 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-// controla vitória, derrota e mortes entre cenas
 public class GameManager : MonoBehaviour
 {
-    // instância global do GameManager
     public static GameManager instance;
 
-    // nome da cena de vitória
-    public string victorySceneName = "VictoryScene";
+    public float savedHealth = -1f;
+    public float savedStamina = -1f;
+    public float savedPower = -1f;
+    public int savedLives = -1;
 
-    // executa antes do Start
     void Awake()
     {
-        // se já existe outro GameManager
         if (instance != null)
         {
-            // destrói este para não duplicar
             Destroy(gameObject);
             return;
         }
 
-        // define este como o GameManager principal
         instance = this;
-
-        // não destrói ao trocar de cena
         DontDestroyOnLoad(gameObject);
     }
 
-    // tenta vencer o jogo
-    public void TryVictory()
+    public void SavePlayerState(
+        float health,
+        float stamina,
+        int lives
+    )
     {
-        // procura todos os inimigos vivos pela tag Enemy
-        GameObject[] enemies =
-            GameObject.FindGameObjectsWithTag("Enemy");
+        savedHealth = health;
+        savedStamina = stamina;
+        savedLives = lives;
+    }
 
-        // se não existe nenhum inimigo vivo
-        if (enemies.Length == 0)
-        {
-            // carrega tela de vitória
-            SceneManager.LoadScene(victorySceneName);
-        }
-        else
-        {
-            Debug.Log("Ainda existem inimigos vivos.");
-        }
+    public void SavePlayerPower(float power)
+    {
+        savedPower = power;
+    }
+
+    public bool HasSavedPlayerState()
+    {
+        return savedHealth >= 0f &&
+               savedStamina >= 0f;
+    }
+
+    public bool HasSavedPlayerPower()
+    {
+        return savedPower >= 0f;
+    }
+
+    public bool HasSavedLives()
+    {
+        return savedLives >= 0;
+    }
+
+    public void ClearPlayerState()
+    {
+        savedHealth = -1f;
+        savedStamina = -1f;
+        savedPower = -1f;
+        savedLives = -1;
+    }
+
+    public void LoadFromPlayerPrefs(
+        float defaultHealth,
+        float defaultStamina,
+        float defaultPower,
+        int defaultLives
+    )
+    {
+        savedHealth =
+            GameSaveManager.GetHealth(defaultHealth);
+
+        savedStamina =
+            GameSaveManager.GetStamina(defaultStamina);
+
+        savedPower =
+            GameSaveManager.GetPower(defaultPower);
+
+        savedLives =
+            GameSaveManager.GetLives(defaultLives);
     }
 }

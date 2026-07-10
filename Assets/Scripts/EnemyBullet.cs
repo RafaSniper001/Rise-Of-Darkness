@@ -12,14 +12,36 @@ public class EnemyBullet : MonoBehaviour
     // tempo máximo antes do tiro desaparecer sozinho
     public float lifeTime = 5f;
 
+    float baseDamage;
+
+    void Awake()
+    {
+        baseDamage = damage;
+        ApplyDifficulty(GameSettings.difficultyMultiplier);
+    }
+
+    void OnEnable()
+    {
+        GameSettings.OnDifficultyChanged += ApplyDifficulty;
+    }
+
+    void OnDisable()
+    {
+        GameSettings.OnDifficultyChanged -= ApplyDifficulty;
+    }
+
     // executa quando o objeto nasce
     void Start()
     {
-        // multiplica o dano conforme a dificuldade atual
-        damage *= GameSettings.difficultyMultiplier;
+        ApplyDifficulty(GameSettings.difficultyMultiplier);
 
         // destrói o projétil após alguns segundos
         Destroy(gameObject, lifeTime);
+    }
+
+    void ApplyDifficulty(float multiplier)
+    {
+        damage = baseDamage * multiplier;
     }
 
     // executa todo frame

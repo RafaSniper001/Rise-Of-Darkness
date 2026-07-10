@@ -29,6 +29,18 @@ public class EndScreenController : MonoBehaviour
         // garante tempo normal
         Time.timeScale = 1f;
 
+        // apaga o save permanente antigo
+        GameSaveManager.ClearSave();
+
+        // impede carregamento de save antigo
+        GameSaveManager.ShouldLoadSavedGame = false;
+
+        // limpa estado temporário
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.ClearPlayerState();
+        }
+
         // restaura as 3 vidas
         PlayerHealth.ResetLives();
 
@@ -42,8 +54,14 @@ public class EndScreenController : MonoBehaviour
         // garante tempo normal
         Time.timeScale = 1f;
 
-        // restaura as 3 vidas
-        PlayerHealth.ResetLives();
+        // não apaga o save permanente
+        GameSaveManager.ShouldLoadSavedGame = false;
+
+        // limpa apenas estado temporário
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.ClearPlayerState();
+        }
 
         // volta para o menu principal
         SceneManager.LoadScene(mainMenuScene);

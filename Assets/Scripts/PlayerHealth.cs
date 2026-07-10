@@ -2,143 +2,264 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// controla vida do player
 public class PlayerHealth : MonoBehaviour
 {
-    // vida máxima do player
     public float maxHealth = 100f;
-
-    // vida atual do player
     public float currentHealth;
 
-    // nome da cena para respawn
-    public string respawnScene;
-
-    // nome da cena de derrota final
     public string defeatScene = "DefeatScene";
-
-    // quantidade máxima de vidas
     public int maxLives = 3;
 
-    // som de morte
     public AudioClip deathSound;
 
-    // componente de áudio
-    private AudioSource audioSource;
+    public float respawnLockTime = 0.3f;
 
-    // impede executar a morte mais de uma vez
-    private bool isDead = false;
+    AudioSource audioSource;
+    Rigidbody rb;
 
-    // quantidade de mortes atuais
-    // static mantém o valor entre cenas
+    bool isDead = false;
+    bool isInvulnerable = false;
+
     static int deathCount = 0;
 
-    // executa ao iniciar
     void Start()
     {
-        // começa com vida cheia
-        currentHealth = maxHealth;
-
-        // pega o AudioSource do objeto
         audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+
+        if (GameSaveManager.ShouldLoadSavedGame &&
+            GameSaveManager.HasSave())
+        {
+            currentHealth =
+                GameSaveManager.GetHealth(maxHealth);
+
+            int livesRemaining =
+                GameSaveManager.GetLives(maxLives);
+
+            deathCount =
+                maxLives - livesRemaining;
+
+            deathCount =
+                Mathf.Clamp(
+                    deathCount,
+                    0,
+                    maxLives - 1
+                );
+
+            if (CheckpointManager.instance != null)
+            {
+                Vector3 checkpointPosition =
+                    CheckpointManager.instance
+                        .GetCurrentCheckpointPosition();
+
+                if (rb != null)
+                {
+                    rb.position = checkpointPosition;
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+                else
+                {
+                    transform.position = checkpointPosition;
+                }
+            }
+        }
+        else if (GameManager.instance != null &&
+                 GameManager.instance.HasSavedPlayerState())
+        {
+            currentHealth =
+                GameManager.instance.savedHealth;
+        }
+        else
+        {
+            currentHealth = maxHealth;
+        }
+
+        currentHealth =
+            Mathf.Clamp(
+                currentHealth,
+                0f,
+                maxHealth
+            );
     }
 
-    // recebe dano
-    public void TakeDamage(float damage)
+    void LateUpdate()
     {
-        // ignora dano se já morreu
+        SaveState();
+    }
+
+    void OnDestroy()
+    {
+        SaveState();
+    }
+
+    void SaveState()
+    {
+        if (GameManager.instance == null)
+            return;
+
         if (isDead)
             return;
 
-        // diminui a vida atual
+        PlayerMovement playerMovement =
+            GetComponent<PlayerMovement>();
+
+        if (playerMovement == null)
+            return;
+
+        GameManager.instance.SavePlayerState(
+            currentHealth,
+            playerMovement.currentStamina,
+            GetLivesRemaining()
+        );
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (isDead || isInvulnerable)
+            return;
+
         currentHealth -= damage;
 
-        // impede vida negativa
         if (currentHealth <= 0f)
         {
-            currentHealth = 0f;
-            isDead = true;
-
-            StartCoroutine(Die());
+            KillPlayer();
         }
     }
 
-    // controla morte do player
+    public void KillPlayer()
+    {
+        if (isDead || isInvulnerable)
+            return;
+
+        currentHealth = 0f;
+        isDead = true;
+        isInvulnerable = true;
+
+        StartCoroutine(Die());
+    }
+
     IEnumerator Die()
     {
-        // desabilita todos os scripts do player
-        MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
+        deathCount++;
 
-        foreach (MonoBehaviour script in scripts)
+        LockPlayer();
+
+        if (deathSound != null &&
+            audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+            yield return new WaitForSeconds(
+                deathSound.length
+            );
+        }
+
+        if (deathCount >= maxLives)
+        {
+            deathCount = 0;
+
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.ClearPlayerState();
+            }
+
+            SceneManager.LoadScene(defeatScene);
+            yield break;
+        }
+
+        yield return StartCoroutine(Respawn());
+    }
+
+    IEnumerator Respawn()
+    {
+        Vector3 checkpointPosition =
+            CheckpointManager.instance
+                .GetCurrentCheckpointPosition();
+
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+
+        transform.position = checkpointPosition;
+
+        currentHealth = maxHealth;
+
+        PlayerMovement playerMovement =
+            GetComponent<PlayerMovement>();
+
+        if (playerMovement != null)
+        {
+            playerMovement.ResetStamina();
+        }
+
+        PlayerPower playerPower =
+            GetComponent<PlayerPower>();
+
+        if (playerPower != null)
+        {
+            playerPower.ResetPower();
+        }
+
+        SaveState();
+
+        yield return new WaitForSeconds(
+            respawnLockTime
+        );
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        UnlockPlayer();
+
+        isDead = false;
+        isInvulnerable = false;
+    }
+
+    void LockPlayer()
+    {
+        foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
         {
             if (script != this)
                 script.enabled = false;
         }
 
-        // para Rigidbody2D
-        Rigidbody2D rb2D = GetComponent<Rigidbody2D>();
-        if (rb2D != null)
+        foreach (Collider col in GetComponents<Collider>())
         {
-            rb2D.linearVelocity = Vector2.zero;
-            rb2D.simulated = false;
+            col.enabled = false;
         }
 
-        // para Rigidbody 3D
-        Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
-        }
-
-        // toca o som de morte
-        if (deathSound != null && audioSource != null)
-        {
-            audioSource.PlayOneShot(deathSound);
-
-            // espera terminar
-            yield return new WaitForSeconds(deathSound.length);
-        }
-
-        // adiciona uma morte
-        deathCount++;
-
-        // verifica se acabou todas as vidas
-        if (deathCount >= maxLives)
-        {
-            // reseta contador de mortes
-            deathCount = 0;
-
-            // vai para cena de derrota
-            SceneManager.LoadScene(defeatScene);
-        }
-        else
-        {
-            // verifica se existe uma cena definida
-            if (!string.IsNullOrEmpty(respawnScene))
-            {
-                // carrega cena escolhida
-                SceneManager.LoadScene(respawnScene);
-            }
-            else
-            {
-                // reinicia cena atual
-                SceneManager.LoadScene(
-                    SceneManager.GetActiveScene().buildIndex
-                );
-            }
         }
     }
 
-    // retorna quantas vidas restam
-    // usado pelo HUD
+    void UnlockPlayer()
+    {
+        foreach (Collider col in GetComponents<Collider>())
+        {
+            col.enabled = true;
+        }
+
+        foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
+        {
+            if (script != this)
+                script.enabled = true;
+        }
+    }
+
     public int GetLivesRemaining()
     {
         return maxLives - deathCount;
     }
 
-    // reseta vidas manualmente
-    // pode ser usado no menu ou vitória
     public static void ResetLives()
     {
         deathCount = 0;

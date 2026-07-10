@@ -2,115 +2,118 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-// controla os volumes do jogo
 public class AudioSettings : MonoBehaviour
 {
-    // referência para o mixer
     public AudioMixer mixer;
 
-    // slider do volume geral
     public Slider masterSlider;
-
-    // slider da música
     public Slider musicSlider;
-
-    // slider dos efeitos
     public Slider effectsSlider;
 
-    // executa ao iniciar
+    const string MasterKey = "MasterVolume";
+    const string MusicKey = "MusicVolume";
+    const string EffectsKey = "EffectsVolume";
+
     void Start()
     {
-        // carrega valores salvos
         float masterVolume =
-            PlayerPrefs.GetFloat(
-                "MasterVolume",
-                1f
-            );
+            PlayerPrefs.GetFloat(MasterKey, 1f);
 
         float musicVolume =
-            PlayerPrefs.GetFloat(
-                "MusicVolume",
-                1f
-            );
+            PlayerPrefs.GetFloat(MusicKey, 1f);
 
         float effectsVolume =
-            PlayerPrefs.GetFloat(
-                "EffectsVolume",
-                1f
-            );
+            PlayerPrefs.GetFloat(EffectsKey, 1f);
 
-        // configura sliders
-        masterSlider.value = masterVolume;
-        musicSlider.value = musicVolume;
-        effectsSlider.value = effectsVolume;
+        if (masterSlider != null)
+        {
+            masterSlider.value = masterVolume;
+            masterSlider.onValueChanged.AddListener(SetMasterVolume);
+        }
 
-        // aplica volumes ao mixer
-        SetMasterVolume(masterVolume);
-        SetMusicVolume(musicVolume);
-        SetEffectsVolume(effectsVolume);
+        if (musicSlider != null)
+        {
+            musicSlider.value = musicVolume;
+            musicSlider.onValueChanged.AddListener(SetMusicVolume);
+        }
 
-        // registra eventos
-        masterSlider.onValueChanged.AddListener(
-            SetMasterVolume
-        );
+        if (effectsSlider != null)
+        {
+            effectsSlider.value = effectsVolume;
+            effectsSlider.onValueChanged.AddListener(SetEffectsVolume);
+        }
 
-        musicSlider.onValueChanged.AddListener(
-            SetMusicVolume
-        );
-
-        effectsSlider.onValueChanged.AddListener(
-            SetEffectsVolume
-        );
+        ApplyMasterVolume(masterVolume);
+        ApplyMusicVolume(musicVolume);
+        ApplyEffectsVolume(effectsVolume);
     }
 
-    // altera volume geral
     public void SetMasterVolume(float value)
     {
-        // evita log10(0)
         value = Mathf.Max(value, 0.001f);
 
-        // aplica ao mixer
-        mixer.SetFloat(
-            "MasterVolume",
-            Mathf.Log10(value) * 20f
-        );
+        ApplyMasterVolume(value);
 
-        // salva
-        PlayerPrefs.SetFloat(
-            "MasterVolume",
-            value
-        );
+        PlayerPrefs.SetFloat(MasterKey, value);
+        PlayerPrefs.Save();
     }
 
-    // altera volume da música
     public void SetMusicVolume(float value)
     {
         value = Mathf.Max(value, 0.001f);
 
-        mixer.SetFloat(
-            "MusicVolume",
-            Mathf.Log10(value) * 20f
-        );
+        ApplyMusicVolume(value);
 
-        PlayerPrefs.SetFloat(
-            "MusicVolume",
-            value
-        );
+        PlayerPrefs.SetFloat(MusicKey, value);
+        PlayerPrefs.Save();
     }
 
-    // altera volume dos efeitos
     public void SetEffectsVolume(float value)
     {
         value = Mathf.Max(value, 0.001f);
 
-        mixer.SetFloat(
-            "EffectsVolume",
-            Mathf.Log10(value) * 20f
-        );
+        ApplyEffectsVolume(value);
 
-        PlayerPrefs.SetFloat(
-            "EffectsVolume",
-            value
-        );
+        PlayerPrefs.SetFloat(EffectsKey, value);
+        PlayerPrefs.Save();
+    }
+
+    void ApplyMasterVolume(float value)
+    {
+        value = Mathf.Max(value, 0.001f);
+
+        if (mixer != null)
+        {
+            mixer.SetFloat(
+                "MasterVolume",
+                Mathf.Log10(value) * 20f
+            );
+        }
+    }
+
+    void ApplyMusicVolume(float value)
+    {
+        value = Mathf.Max(value, 0.001f);
+
+        if (mixer != null)
+        {
+            mixer.SetFloat(
+                "MusicVolume",
+                Mathf.Log10(value) * 20f
+            );
+        }
+    }
+
+    void ApplyEffectsVolume(float value)
+    {
+        value = Mathf.Max(value, 0.001f);
+
+        if (mixer != null)
+        {
+            mixer.SetFloat(
+                "EffectsVolume",
+                Mathf.Log10(value) * 20f
+            );
+        }
     }
 }
