@@ -607,6 +607,9 @@ public static class PlayerRigSetup
 
         var falling = sm.AddState("Falling", new Vector3(300, 140));
         falling.motion = LoadClip(FallClip);
+        // sem Foot IK o retarget deixava o pé direito esticado para baixo no ar
+        // (~17° entre pé e canela, contra ~38° na animação original do Mixamo)
+        falling.iKOnFeet = true;
         var landing = sm.AddState("Landing", new Vector3(560, 140));
         landing.motion = LoadClip(LandClip);
         landing.iKOnFeet = true;
