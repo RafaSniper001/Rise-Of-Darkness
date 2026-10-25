@@ -44,6 +44,8 @@ public class BossAnimator : MonoBehaviour
     public float airFootBlendTime = 0.15f;
     float airFootWeight;
     PlayerAnimator.FootRest feetRest;
+    // mão do sabre fechada no cabo também na queda e no pouso
+    PlayerAnimator.HandGrip swordGrip;
 
     [Header("Queda")]
     public float airborneDelay = 0.15f;
@@ -128,6 +130,7 @@ public class BossAnimator : MonoBehaviour
 
         float air = PlayerAnimator.AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
         feetRest.Apply(animator, air);
+        swordGrip.Update(animator, air);
     }
 
     // 0 = parado (Idle), 1 = andando (Walk, estado Approach da IA, chegando perto),

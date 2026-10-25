@@ -125,10 +125,54 @@ public class PlayerAnimator : MonoBehaviour
 
         float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
         feetRest.Apply(animator, air);
+        swordGrip.Update(animator, air);
     }
 
     float airFootWeight;
     FootRest feetRest;
+    HandGrip swordGrip;
+
+    // mão do sabre: as animações de queda e pouso (sem arma) abrem a mão. No chão guarda como
+    // os dedos da mão direita estão fechados no cabo; na queda e no pouso mantém essa pegada
+    public struct HandGrip
+    {
+        static readonly HumanBodyBones[] Fingers =
+        {
+            HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal,
+            HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal,
+            HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal,
+            HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate, HumanBodyBones.RightRingDistal,
+            HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal,
+        };
+
+        Quaternion[] grip;
+        bool recorded;
+
+        // weight 0 (no chão): guarda a pegada; acima disso puxa os dedos para ela
+        public void Update(Animator animator, float weight)
+        {
+            if (grip == null)
+                grip = new Quaternion[Fingers.Length];
+
+            if (weight > 0f && !recorded)
+                return;
+
+            for (int i = 0; i < Fingers.Length; i++)
+            {
+                Transform bone = animator.GetBoneTransform(Fingers[i]);
+                if (bone == null)
+                    continue;
+
+                if (weight <= 0f)
+                    grip[i] = bone.localRotation;
+                else
+                    bone.localRotation = Quaternion.Slerp(bone.localRotation, grip[i], weight);
+            }
+
+            if (weight <= 0f)
+                recorded = true;
+        }
+    }
 
     // pose natural de cada pé em relação à canela (a do prefab, antes da primeira animação)
     public struct FootRest
