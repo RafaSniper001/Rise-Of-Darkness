@@ -68,6 +68,13 @@ public class EnemyBullet : MonoBehaviour
             playerHealth.TakeDamage(damage);
         }
 
+        // objetos de cenário servem de cobertura e vão quebrando com os tiros
+        Destructible destructible =
+            collision.gameObject.GetComponent<Destructible>();
+
+        if (destructible != null)
+            destructible.TakeHit(damage);
+
         // destrói o tiro ao colidir
         Destroy(gameObject);
     }

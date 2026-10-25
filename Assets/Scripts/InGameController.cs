@@ -99,6 +99,16 @@ public class InGameController : MonoBehaviour
             "x";
     }
 
+    // botão Sair do jogo do menu de pausa: fecha o jogo (no editor só registra)
+    public void QuitGame()
+    {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
+        Application.Quit();
+        Debug.Log("Saiu do jogo");
+    }
+
     public void MainMenu()
     {
         Time.timeScale = 1f;

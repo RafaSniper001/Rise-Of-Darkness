@@ -76,20 +76,43 @@ public class EnemySpawner : MonoBehaviour
         );
     }
 
+    // raio livre em volta do ponto: nenhum objeto de cenário (Destructible) por perto
+    public float clearRadius = 2f;
+
     Vector3 GetRandomPointOnTopOfBox(BoxCollider area)
     {
         Bounds bounds = area.bounds;
+        Vector3 point = bounds.center;
 
-        float randomX =
-            Random.Range(bounds.min.x, bounds.max.x);
+        // sorteia de novo se cair em cima de um objeto de cenário
+        for (int attempt = 0; attempt < 30; attempt++)
+        {
+            point = new Vector3(
+                Random.Range(bounds.min.x, bounds.max.x),
+                bounds.max.y,
+                Random.Range(bounds.min.z, bounds.max.z)
+            );
 
-        float randomZ =
-            Random.Range(bounds.min.z, bounds.max.z);
+            if (!NearProp(point))
+                break;
+        }
 
-        return new Vector3(
-            randomX,
-            bounds.max.y,
-            randomZ
-        );
+        return point;
+    }
+
+    bool NearProp(Vector3 point)
+    {
+        foreach (Collider col in Physics.OverlapCapsule(
+                     point + Vector3.down * 3f,
+                     point + Vector3.up * 3f,
+                     clearRadius,
+                     ~0,
+                     QueryTriggerInteraction.Ignore))
+        {
+            if (col.GetComponentInParent<Destructible>() != null)
+                return true;
+        }
+
+        return false;
     }
 }

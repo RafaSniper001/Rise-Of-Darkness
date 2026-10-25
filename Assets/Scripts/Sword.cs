@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Sword : MonoBehaviour
@@ -7,59 +8,99 @@ public class Sword : MonoBehaviour
 
     public AudioClip[] attackSounds;
 
+    // usado só se o player não tiver PlayerAnimator
     public float damageWindow = 0.5f;
 
-    Animator animator;
     AudioSource audioSource;
     PlayerPower playerPower;
+    PlayerAnimator playerAnimator;
 
     bool canDamage = false;
-    bool alreadyHit = false;
+
+    // inimigos já atingidos neste golpe: cada um leva dano uma vez,
+    // mas o golpe acerta todos em que o sabre encostar
+    readonly HashSet<GameObject> hitThisSwing = new HashSet<GameObject>();
 
     void Start()
     {
-        animator = GetComponent<Animator>();
         audioSource = GetComponentInParent<AudioSource>();
         playerPower = GetComponentInParent<PlayerPower>();
+
+        PlayerAttack owner = GetComponentInParent<PlayerAttack>();
+        if (owner != null)
+            playerAnimator = owner.GetComponentInChildren<PlayerAnimator>();
     }
 
     public void Attack()
     {
-        if (animator != null &&
-            animator.GetCurrentAnimatorStateInfo(0).IsName("Ataque Sabre"))
+        // som e dano vêm dos Animation Events (SwingSound, AttackStart/AttackEnd)
+        if (playerAnimator != null)
         {
+            playerAnimator.RequestAttack();
             return;
         }
 
-        if (audioSource != null && attackSounds.Length > 0)
-        {
-            int randomIndex = Random.Range(0, attackSounds.Length);
-            audioSource.PlayOneShot(attackSounds[randomIndex]);
-        }
-
-        if (animator != null)
-        {
-            animator.CrossFade("Ataque Sabre", 0f, 0, 0f);
-        }
+        PlaySwingSound();
 
         StopAllCoroutines();
         StartCoroutine(DamageWindow());
     }
 
-    IEnumerator DamageWindow()
+    public void PlaySwingSound()
+    {
+        if (audioSource != null && attackSounds.Length > 0)
+        {
+            int randomIndex = Random.Range(0, attackSounds.Length);
+            audioSource.PlayOneShot(attackSounds[randomIndex]);
+        }
+    }
+
+    public void OpenDamageWindow()
     {
         canDamage = true;
-        alreadyHit = false;
+        hitThisSwing.Clear();
+    }
+
+    public void CloseDamageWindow()
+    {
+        canDamage = false;
+    }
+
+    IEnumerator DamageWindow()
+    {
+        OpenDamageWindow();
 
         yield return new WaitForSeconds(damageWindow);
 
-        canDamage = false;
+        CloseDamageWindow();
     }
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (!canDamage || alreadyHit)
+        TryHit(collision);
+    }
+
+    // o golpe pode começar com o sabre já encostado no inimigo
+    private void OnTriggerStay(Collider collision)
+    {
+        TryHit(collision);
+    }
+
+    void TryHit(Collider collision)
+    {
+        if (!canDamage || hitThisSwing.Contains(collision.gameObject))
             return;
+
+        // objetos de cenário quebram com o sabre (sem carregar o poder)
+        Destructible destructible =
+            collision.gameObject.GetComponent<Destructible>();
+
+        if (destructible != null)
+        {
+            hitThisSwing.Add(collision.gameObject);
+            destructible.TakeHit(damage);
+            return;
+        }
 
         bool hitEnemy = false;
 
@@ -94,7 +135,7 @@ public class Sword : MonoBehaviour
 
         if (hitEnemy)
         {
-            alreadyHit = true;
+            hitThisSwing.Add(collision.gameObject);
 
             if (playerPower != null)
             {

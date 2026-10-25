@@ -39,6 +39,19 @@ public class EnemyHealth : MonoBehaviour
     {
         isDead = true;
 
+        float wait = 0f;
+
+        // modelo animado: para de agir e toca a animação de morte
+        BossAnimator bossAnimator =
+            GetComponentInChildren<BossAnimator>();
+
+        if (bossAnimator != null)
+        {
+            StopActing();
+            bossAnimator.SetDead();
+            wait = bossAnimator.deathDuration;
+        }
+
         // toca som de morte
         if (deathSound != null &&
             audioSource != null)
@@ -47,13 +60,29 @@ public class EnemyHealth : MonoBehaviour
                 deathSound
             );
 
-            // espera o som terminar
-            yield return new WaitForSeconds(
-                deathSound.length
-            );
+            wait = Mathf.Max(wait, deathSound.length);
+        }
+
+        // espera o som e a animação de morte terminarem
+        if (wait > 0f)
+        {
+            yield return new WaitForSeconds(wait);
         }
 
         // destrói o inimigo
         Destroy(gameObject);
+    }
+
+    // desliga perseguição, ataque e aura enquanto a animação de morte toca
+    void StopActing()
+    {
+        foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
+        {
+            if (script == this)
+                continue;
+
+            script.StopAllCoroutines();
+            script.enabled = false;
+        }
     }
 }

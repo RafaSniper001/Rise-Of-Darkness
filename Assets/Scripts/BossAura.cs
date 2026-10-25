@@ -15,8 +15,14 @@ public class BossAura : MonoBehaviour
     public ParticleSystem auraChargedEffect;
     public ParticleSystem auraExplosionEffect;
 
+    // tempo máximo esperando a animação de poder chegar na mão no alto
+    public float releaseTimeout = 2f;
+
     BossChase bossChase;
     BossSword bossSword;
+    BossAnimator bossAnimator;
+
+    bool waitingRelease = false;
 
     float originalMoveSpeed;
     float originalSwordDamage;
@@ -28,6 +34,7 @@ public class BossAura : MonoBehaviour
     {
         bossChase = GetComponent<BossChase>();
         bossSword = GetComponentInChildren<BossSword>();
+        bossAnimator = GetComponentInChildren<BossAnimator>();
 
         if (bossChase != null)
             originalMoveSpeed = bossChase.moveSpeed;
@@ -60,11 +67,60 @@ public class BossAura : MonoBehaviour
 
             yield return new WaitForSeconds(useDelay);
 
-            if (IsPlayerNear())
+            // só lança o poder depois de identificar o player (estado Idle da IA não ataca)
+            if (IsPlayerNear() && (bossChase == null || bossChase.IsEngaged))
             {
-                UseAura();
+                yield return StartCoroutine(CastAura());
             }
         }
+    }
+
+    // com animação: a explosão sai quando a mão chega no alto (Animation Event PowerRelease)
+    IEnumerator CastAura()
+    {
+        if (bossAnimator == null)
+        {
+            UseAura();
+            yield break;
+        }
+
+        // termina o golpe de sabre em andamento antes de lançar o poder
+        float waited = 0f;
+
+        while (bossAnimator.IsBusy() && waited < releaseTimeout)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        if (!bossAnimator.TryPlayPower())
+        {
+            UseAura();
+            yield break;
+        }
+
+        waitingRelease = true;
+        waited = 0f;
+
+        while (waitingRelease && waited < releaseTimeout)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        // a animação não chegou no evento: explode do mesmo jeito
+        if (waitingRelease)
+            ReleasePower();
+    }
+
+    // chamado pelo BossAnimator no evento PowerRelease
+    public void ReleasePower()
+    {
+        if (!waitingRelease)
+            return;
+
+        waitingRelease = false;
+        UseAura();
     }
 
     void ChargeAura()

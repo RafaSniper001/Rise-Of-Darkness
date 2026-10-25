@@ -49,8 +49,7 @@ public class PlayerHealth : MonoBehaviour
             if (CheckpointManager.instance != null)
             {
                 Vector3 checkpointPosition =
-                    CheckpointManager.instance
-                        .GetCurrentCheckpointPosition();
+                    GroundedCheckpointPosition();
 
                 if (rb != null)
                 {
@@ -127,6 +126,15 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    // cápsulas de cura dos objetos quebrados
+    public void Heal(float amount)
+    {
+        if (isDead)
+            return;
+
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+    }
+
     public void KillPlayer()
     {
         if (isDead || isInvulnerable)
@@ -145,14 +153,27 @@ public class PlayerHealth : MonoBehaviour
 
         LockPlayer();
 
+        PlayerAnimator playerAnimator =
+            GetComponentInChildren<PlayerAnimator>();
+
+        if (playerAnimator != null)
+            playerAnimator.SetDead(true);
+
+        // espera o som e a animação de morte terminarem
+        float wait =
+            playerAnimator != null
+                ? playerAnimator.deathDuration
+                : 0f;
+
         if (deathSound != null &&
             audioSource != null)
         {
             audioSource.PlayOneShot(deathSound);
-            yield return new WaitForSeconds(
-                deathSound.length
-            );
+            wait = Mathf.Max(wait, deathSound.length);
         }
+
+        if (wait > 0f)
+            yield return new WaitForSeconds(wait);
 
         if (deathCount >= maxLives)
         {
@@ -173,8 +194,7 @@ public class PlayerHealth : MonoBehaviour
     IEnumerator Respawn()
     {
         Vector3 checkpointPosition =
-            CheckpointManager.instance
-                .GetCurrentCheckpointPosition();
+            GroundedCheckpointPosition();
 
         if (rb != null)
         {
@@ -183,10 +203,26 @@ public class PlayerHealth : MonoBehaviour
 
         transform.position = checkpointPosition;
 
-        currentHealth = maxHealth;
+        if (rb != null)
+            rb.position = checkpointPosition;
+
+        Physics.SyncTransforms();
 
         PlayerMovement playerMovement =
             GetComponent<PlayerMovement>();
+
+        // se morreu no ar (caindo ou empurrado), o "no chão" ficou parado
+        // em "no ar" durante a morte e renasceria com a animação de queda
+        if (playerMovement != null)
+            playerMovement.RefreshGround();
+
+        PlayerAnimator playerAnimator =
+            GetComponentInChildren<PlayerAnimator>();
+
+        if (playerAnimator != null)
+            playerAnimator.SetDead(false);
+
+        currentHealth = maxHealth;
 
         if (playerMovement != null)
         {
@@ -218,6 +254,22 @@ public class PlayerHealth : MonoBehaviour
 
         isDead = false;
         isInvulnerable = false;
+    }
+
+    // checkpoint com o player apoiado no chão (renasce de pé, sem cair)
+    Vector3 GroundedCheckpointPosition()
+    {
+        Vector3 checkpointPosition =
+            CheckpointManager.instance
+                .GetCurrentCheckpointPosition();
+
+        PlayerMovement playerMovement =
+            GetComponent<PlayerMovement>();
+
+        if (playerMovement == null)
+            return checkpointPosition;
+
+        return playerMovement.GetGroundedPosition(checkpointPosition);
     }
 
     void LockPlayer()

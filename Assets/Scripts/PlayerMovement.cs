@@ -19,15 +19,27 @@ public class PlayerMovement : MonoBehaviour
     bool exhausted = false;
 
     public AudioSource audioSource;
-    public AudioClip[] footstepSounds;
 
-    public float walkStepInterval = 0.5f;
-    public float sprintStepInterval = 0.3f;
+    // cada pé tem seus sons: se os dois baterem juntos, os dois tocam
+    public AudioClip[] leftFootSounds;
+    public AudioClip[] rightFootSounds;
+
+    // evita som dobrado do mesmo pé quando andar e correr se misturam no blend
+    public float minStepInterval = 0.15f;
 
     public Transform groundCheck;
     public float groundCheckRadius = 0.25f;
 
-    float stepTimer = 0f;
+    // folga (em unidades locais) para continuar "no chão" em rampas íngremes
+    public float slopeGroundTolerance = 0.35f;
+
+    // volume extra do som de pouso (os dois pés juntos)
+    public float landingVolume = 1.3f;
+
+    public bool IsGrounded { get; private set; }
+
+    bool canStep = false;
+    float[] lastStepTime = { -1f, -1f };
 
     void Start()
     {
@@ -68,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         bool isGrounded = CheckGround();
+        IsGrounded = isGrounded;
 
         float horizontal =
             Input.GetAxisRaw("Horizontal");
@@ -94,40 +107,8 @@ public class PlayerMovement : MonoBehaviour
         bool isMoving =
             moveDirection.magnitude > 0f;
 
-        if (isMoving && isGrounded)
-        {
-            float currentInterval =
-                Input.GetKey(KeyCode.LeftShift) &&
-                currentStamina > 0f &&
-                !exhausted
-                    ? sprintStepInterval
-                    : walkStepInterval;
-
-            stepTimer -= Time.fixedDeltaTime;
-
-            if (stepTimer <= 0f)
-            {
-                if (footstepSounds.Length > 0 &&
-                    audioSource != null)
-                {
-                    int randomIndex =
-                        Random.Range(
-                            0,
-                            footstepSounds.Length
-                        );
-
-                    audioSource.PlayOneShot(
-                        footstepSounds[randomIndex]
-                    );
-                }
-
-                stepTimer = currentInterval;
-            }
-        }
-        else
-        {
-            stepTimer = 0f;
-        }
+        // os passos tocam pelo Animation Event Footstep (PlayFootstep)
+        canStep = isMoving && isGrounded;
 
         bool isSprinting =
             Input.GetKey(KeyCode.LeftShift) &&
@@ -189,19 +170,146 @@ public class PlayerMovement : MonoBehaviour
 
         foreach (Collider col in colliders)
         {
-            if (col.CompareTag("Player"))
-                continue;
+            if (IsGround(col))
+                return true;
+        }
 
-            if (col.transform.IsChildOf(transform))
-                continue;
+        return CheckGroundOnSlope();
+    }
 
-            if (col.isTrigger)
-                continue;
+    bool IsGround(Collider col)
+    {
+        return !col.CompareTag("Player") &&
+               !col.transform.IsChildOf(transform) &&
+               !col.isTrigger;
+    }
 
-            return true;
+    // em rampa íngreme a base da cápsula fica longe do chão e a esfera do
+    // groundCheck não alcança: lança a cápsula para baixo com uma folga
+    bool CheckGroundOnSlope()
+    {
+        CapsuleCollider capsule = GetComponent<CapsuleCollider>();
+
+        if (capsule == null)
+            return false;
+
+        float scale = transform.lossyScale.y;
+        float radius = capsule.radius * scale * 0.9f;
+        Vector3 center = transform.TransformPoint(capsule.center);
+        float distance =
+            capsule.height * scale * 0.5f - radius +
+            slopeGroundTolerance * scale;
+
+        RaycastHit[] hits =
+            Physics.SphereCastAll(
+                center,
+                radius,
+                Vector3.down,
+                distance
+            );
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.distance > 0f && IsGround(hit.collider))
+                return true;
         }
 
         return false;
+    }
+
+    // atualiza o "no chão" na hora (ex.: depois de renascer, com o script ainda travado)
+    public void RefreshGround()
+    {
+        IsGrounded = CheckGround();
+    }
+
+    // posição com a base da cápsula apoiada no chão logo abaixo
+    // (checkpoints mais altos que o chão faziam o player renascer caindo)
+    public Vector3 GetGroundedPosition(Vector3 position)
+    {
+        CapsuleCollider capsule = GetComponent<CapsuleCollider>();
+
+        if (capsule == null)
+            return position;
+
+        float bottom =
+            transform.TransformPoint(
+                capsule.center - Vector3.up * capsule.height * 0.5f
+            ).y - transform.position.y;
+
+        Vector3 origin =
+            position + Vector3.up * capsule.height * transform.lossyScale.y * 0.5f;
+
+        float ground = float.NaN;
+        float closest = float.MaxValue;
+
+        foreach (RaycastHit hit in Physics.RaycastAll(origin, Vector3.down, 20f))
+        {
+            // ignora o que se move pela física (BB-8, inimigos): só chão de verdade
+            Rigidbody body = hit.collider.attachedRigidbody;
+
+            if (body != null && !body.isKinematic)
+                continue;
+
+            if (IsGround(hit.collider) && hit.distance < closest)
+            {
+                closest = hit.distance;
+                ground = hit.point.y;
+            }
+        }
+
+        if (float.IsNaN(ground))
+            return position;
+
+        position.y = ground - bottom + 0.01f;
+        return position;
+    }
+
+    // chamado na batida de cada pé (Animation Event): 0 = esquerdo, 1 = direito
+    public void PlayFootstep(int foot)
+    {
+        foot = Mathf.Clamp(foot, 0, 1);
+
+        AudioClip[] sounds =
+            foot == 0 ? leftFootSounds : rightFootSounds;
+
+        if (!canStep ||
+            audioSource == null ||
+            sounds == null ||
+            sounds.Length == 0)
+            return;
+
+        if (Time.time - lastStepTime[foot] < minStepInterval)
+            return;
+
+        lastStepTime[foot] = Time.time;
+
+        int randomIndex =
+            Random.Range(0, sounds.Length);
+
+        audioSource.PlayOneShot(
+            sounds[randomIndex]
+        );
+    }
+
+    // pouso depois de cair/pular: os dois pés batem juntos
+    public void PlayLanding()
+    {
+        if (audioSource == null)
+            return;
+
+        foreach (AudioClip[] sounds in new[] { leftFootSounds, rightFootSounds })
+        {
+            if (sounds == null || sounds.Length == 0)
+                continue;
+
+            audioSource.PlayOneShot(
+                sounds[Random.Range(0, sounds.Length)],
+                landingVolume
+            );
+        }
+
+        lastStepTime[0] = lastStepTime[1] = Time.time;
     }
 
     public void ResetStamina()

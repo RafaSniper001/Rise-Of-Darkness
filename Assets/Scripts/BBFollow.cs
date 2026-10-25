@@ -29,6 +29,17 @@ public class BB8Follow : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
+
+        // sem referência no Inspector: procura o player pelo script de movimento
+        // (a tag Player não serve: há inimigos com essa tag)
+        if (player == null)
+        {
+            PlayerMovement playerMovement =
+                FindFirstObjectByType<PlayerMovement>();
+
+            if (playerMovement != null)
+                player = playerMovement.transform;
+        }
     }
 
     void Update()

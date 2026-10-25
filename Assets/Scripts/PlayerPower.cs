@@ -24,9 +24,12 @@ public class PlayerPower : MonoBehaviour
 
     bool isCharged = false;
     bool buffActive = false;
+    bool isCasting = false;
+    bool powerRequested = false;
 
     PlayerHealth playerHealth;
     PlayerMovement playerMovement;
+    PlayerAnimator playerAnimator;
     Sword sword;
 
     float originalMaxHealth;
@@ -40,6 +43,28 @@ public class PlayerPower : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerMovement = GetComponent<PlayerMovement>();
         sword = GetComponentInChildren<Sword>();
+        playerAnimator = GetComponentInChildren<PlayerAnimator>();
+
+        // a aura acompanha o quadril do modelo (na morte o corpo cai, o objeto do player não)
+        if (powerAura != null &&
+            playerAnimator != null &&
+            playerAnimator.animator != null &&
+            playerAnimator.animator.isHuman)
+        {
+            Transform hips = playerAnimator.animator.GetBoneTransform(HumanBodyBones.Hips);
+
+            if (hips != null)
+            {
+                AuraFollow follow = powerAura.GetComponent<AuraFollow>();
+                if (follow == null)
+                    follow = powerAura.gameObject.AddComponent<AuraFollow>();
+
+                follow.anchor = hips;
+                follow.body = transform;
+                follow.offset = transform.InverseTransformVector(
+                    powerAura.transform.position - hips.position);
+            }
+        }
 
         if (playerHealth != null)
             originalMaxHealth = playerHealth.maxHealth;
@@ -88,10 +113,46 @@ public class PlayerPower : MonoBehaviour
         SavePowerState();
 
         if (isCharged &&
+            !isCasting &&
             Input.GetKeyDown(KeyCode.Space))
         {
-            ActivatePower();
+            // com animação, o poder sai no Animation Event PowerRelease
+            if (playerAnimator != null)
+            {
+                powerRequested = true;
+            }
+            else
+            {
+                ActivatePower();
+            }
         }
+
+        // no meio de um golpe: lança assim que o golpe terminar
+        // (antes o Espaço funcionava a qualquer momento)
+        if (powerRequested)
+        {
+            if (!isCharged || isCasting)
+            {
+                powerRequested = false;
+            }
+            else if (playerAnimator.TryPlayPower())
+            {
+                powerRequested = false;
+                isCasting = true;
+            }
+        }
+    }
+
+    // chamado pelo Animation Event do magic attack
+    public void ReleasePower()
+    {
+        if (!isCasting)
+            return;
+
+        isCasting = false;
+
+        if (isCharged)
+            ActivatePower();
     }
 
     void OnDestroy()
@@ -239,6 +300,12 @@ public class PlayerPower : MonoBehaviour
 
         foreach (Collider col in colliders)
         {
+            Destructible destructible =
+                col.GetComponent<Destructible>();
+
+            if (destructible != null)
+                destructible.TakeHit(powerDamage);
+
             if (!col.CompareTag("Enemy"))
                 continue;
 
@@ -293,6 +360,8 @@ public class PlayerPower : MonoBehaviour
     {
         currentPower = 0f;
         isCharged = false;
+        isCasting = false;
+        powerRequested = false;
 
         RemoveBuff();
 

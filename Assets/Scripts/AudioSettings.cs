@@ -14,6 +14,40 @@ public class AudioSettings : MonoBehaviour
     const string MusicKey = "MusicVolume";
     const string EffectsKey = "EffectsVolume";
 
+    // grupo dos efeitos do mixer, para sons criados na hora (PlayEffectAt)
+    public static AudioMixerGroup EffectsGroup { get; private set; }
+
+    // som solto no mundo (como AudioSource.PlayClipAtPoint), mas passando pelo grupo de
+    // efeitos do mixer: o volume de efeitos do menu de pausa vale para ele também
+    public static void PlayEffectAt(AudioClip clip, Vector3 position, float volume = 1f)
+    {
+        if (clip == null)
+            return;
+
+        GameObject go = new GameObject("Som " + clip.name);
+        go.transform.position = position;
+
+        AudioSource source = go.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.volume = volume;
+        source.spatialBlend = 1f;
+        source.outputAudioMixerGroup = EffectsGroup;
+        source.Play();
+
+        Destroy(go, clip.length + 0.1f);
+    }
+
+    void Awake()
+    {
+        if (mixer != null)
+        {
+            AudioMixerGroup[] groups = mixer.FindMatchingGroups("Effects");
+
+            if (groups.Length > 0)
+                EffectsGroup = groups[0];
+        }
+    }
+
     void Start()
     {
         float masterVolume =

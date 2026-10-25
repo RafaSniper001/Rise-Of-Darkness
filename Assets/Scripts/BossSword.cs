@@ -7,7 +7,7 @@ public class BossSword : MonoBehaviour
 
     public AudioClip[] attackSounds;
 
-    // duração em que o golpe pode causar dano
+    // duração em que o golpe pode causar dano (só sem BossAnimator)
     public float damageWindow = 0.5f;
 
     AudioSource audioSource;
@@ -21,7 +21,17 @@ public class BossSword : MonoBehaviour
             GetComponentInParent<AudioSource>();
     }
 
+    // sem BossAnimator: som e dano na hora do ataque
+    // (com BossAnimator, vêm dos Animation Events SwingSound e AttackStart/AttackEnd)
     public void Attack()
+    {
+        PlaySwingSound();
+
+        StopAllCoroutines();
+        StartCoroutine(DamageWindow());
+    }
+
+    public void PlaySwingSound()
     {
         if (audioSource != null &&
             attackSounds.Length > 0)
@@ -33,24 +43,42 @@ public class BossSword : MonoBehaviour
                 attackSounds[randomIndex]
             );
         }
+    }
 
-        StopAllCoroutines();
-        StartCoroutine(DamageWindow());
+    public void OpenDamageWindow()
+    {
+        canDamage = true;
+        alreadyHit = false;
+    }
+
+    public void CloseDamageWindow()
+    {
+        canDamage = false;
     }
 
     IEnumerator DamageWindow()
     {
-        canDamage = true;
-        alreadyHit = false;
+        OpenDamageWindow();
 
         yield return new WaitForSeconds(
             damageWindow
         );
 
-        canDamage = false;
+        CloseDamageWindow();
     }
 
     private void OnTriggerEnter(Collider other)
+    {
+        TryHit(other);
+    }
+
+    // o golpe pode começar com o sabre já encostado no player
+    private void OnTriggerStay(Collider other)
+    {
+        TryHit(other);
+    }
+
+    void TryHit(Collider other)
     {
         if (!canDamage || alreadyHit)
             return;

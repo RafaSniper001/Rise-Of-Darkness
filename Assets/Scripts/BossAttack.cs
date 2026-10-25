@@ -20,6 +20,10 @@ public class BossAttack : MonoBehaviour
     // Animator responsável pela animação do sabre
     public Animator attackAnimator;
 
+    // modelo animado: o golpe é a animação de ataque do mago (Animation Events)
+    BossAnimator bossAnimator;
+    BossChase bossChase;
+
     float nextAttackTime = 0f;
 
     void Start()
@@ -43,8 +47,13 @@ public class BossAttack : MonoBehaviour
                 GetComponentInChildren<BossSword>();
         }
 
+        bossAnimator =
+            GetComponentInChildren<BossAnimator>();
+
+        bossChase = GetComponent<BossChase>();
+
         // procura Animator automaticamente nos filhos
-        if (attackAnimator == null)
+        if (attackAnimator == null && bossAnimator == null)
         {
             attackAnimator =
                 GetComponentInChildren<Animator>();
@@ -54,6 +63,10 @@ public class BossAttack : MonoBehaviour
     void Update()
     {
         if (player == null || bossSword == null)
+            return;
+
+        // estado Idle da IA (ainda não identificou o player): não ataca
+        if (bossChase != null && !bossChase.IsEngaged)
             return;
 
         float distance =
@@ -74,6 +87,12 @@ public class BossAttack : MonoBehaviour
 
     void Attack()
     {
+        if (bossAnimator != null)
+        {
+            bossAnimator.RequestAttack();
+            return;
+        }
+
         // toca som do sabre
         bossSword.Attack();
 
