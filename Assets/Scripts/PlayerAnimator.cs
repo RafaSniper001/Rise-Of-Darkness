@@ -46,9 +46,9 @@ public class PlayerAnimator : MonoBehaviour
     public float rightFootYaw = 0f;
     public float leftFootYawRun = 0f;
     public float rightFootYawRun = 0f;
-    // no ar (queda): o retarget da animação de queda deixava o pé torcido; no ar cada pé
+    // queda e pouso: o retarget dessas animações deixava o pé torcido; nelas cada pé
     // volta à pose natural do modelo em relação à canela (a pose do prefab). Tempo para
-    // entrar e sair dessa pose ao sair do chão e ao pousar
+    // entrar nessa pose ao sair do chão e para sair dela no fim do pouso
     public float airFootBlendTime = 0.15f;
 
     [Header("Queda")]
@@ -161,11 +161,15 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
-    // 1 no ar (parâmetro Grounded falso, animação de queda), 0 no chão, com transição suave
-    // (também usado pelo BossAnimator)
+    // 1 no ar (parâmetro Grounded falso, animação de queda) e durante a animação de pouso,
+    // 0 no resto, com transição suave (também usado pelo BossAnimator)
     public static float AirWeight(Animator animator, string groundedParameter, ref float weight, float blendTime)
     {
-        float target = animator.GetBool(groundedParameter) ? 0f : 1f;
+        bool landing =
+            animator.GetCurrentAnimatorStateInfo(0).IsName("Landing") ||
+            (animator.IsInTransition(0) && animator.GetNextAnimatorStateInfo(0).IsName("Landing"));
+
+        float target = !animator.GetBool(groundedParameter) || landing ? 1f : 0f;
         weight = Mathf.MoveTowards(weight, target, Time.deltaTime / Mathf.Max(blendTime, 0.01f));
         return weight;
     }
