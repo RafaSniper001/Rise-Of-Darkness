@@ -40,11 +40,10 @@ public class BossAnimator : MonoBehaviour
     public float rightFootYaw = 0f;
     public float leftFootYawRun = 0f;
     public float rightFootYawRun = 0f;
-    // no ar: mesma correção do player (mesmo modelo e mesma animação de queda)
-    public float leftFootYawAir = -13f;
-    public float rightFootYawAir = 71f;
+    // no ar: pés na pose natural do modelo, como no player (mesmo modelo e mesma queda)
     public float airFootBlendTime = 0.15f;
     float airFootWeight;
+    PlayerAnimator.FootRest feetRest;
 
     [Header("Queda")]
     public float airborneDelay = 0.15f;
@@ -70,6 +69,10 @@ public class BossAnimator : MonoBehaviour
     {
         if (animator == null)
             animator = GetComponent<Animator>();
+
+        // antes da primeira animação: os ossos ainda estão na pose do prefab
+        if (animator != null && animator.isHuman)
+            feetRest.Capture(animator);
 
         bossChase = GetComponentInParent<BossChase>();
         bossAura = GetComponentInParent<BossAura>();
@@ -120,12 +123,11 @@ public class BossAnimator : MonoBehaviour
             return;
 
         float run = Mathf.Clamp01(animator.GetFloat(speedParameter) - 1f);
-        float air = PlayerAnimator.AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
+        PlayerAnimator.TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg, Mathf.Lerp(leftFootYaw, leftFootYawRun, run));
+        PlayerAnimator.TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg, Mathf.Lerp(rightFootYaw, rightFootYawRun, run));
 
-        PlayerAnimator.TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg,
-            Mathf.Lerp(Mathf.Lerp(leftFootYaw, leftFootYawRun, run), leftFootYawAir, air));
-        PlayerAnimator.TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg,
-            Mathf.Lerp(Mathf.Lerp(rightFootYaw, rightFootYawRun, run), rightFootYawAir, air));
+        float air = PlayerAnimator.AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
+        feetRest.Apply(animator, air);
     }
 
     // 0 = parado (Idle), 1 = andando (Walk, estado Approach da IA, chegando perto),

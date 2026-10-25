@@ -46,13 +46,9 @@ public class PlayerAnimator : MonoBehaviour
     public float rightFootYaw = 0f;
     public float leftFootYawRun = 0f;
     public float rightFootYawRun = 0f;
-    // no ar (queda): o retarget da animação de queda deixa o pé direito ~70° virado para
-    // dentro e o esquerdo ~13°; medidos contra a animação original do Mixamo. No ar a
-    // correção da corrida não vale. Atenção: em torno da canela, positivo é para dentro
-    // no pé esquerdo e para fora no direito
-    public float leftFootYawAir = -13f;
-    public float rightFootYawAir = 71f;
-    // tempo para entrar e sair da correção do ar
+    // no ar (queda): o retarget da animação de queda deixava o pé torcido; no ar cada pé
+    // volta à pose natural do modelo em relação à canela (a pose do prefab). Tempo para
+    // entrar e sair dessa pose ao sair do chão e ao pousar
     public float airFootBlendTime = 0.15f;
 
     [Header("Queda")]
@@ -77,6 +73,10 @@ public class PlayerAnimator : MonoBehaviour
     {
         if (animator == null)
             animator = GetComponent<Animator>();
+
+        // antes da primeira animação: os ossos ainda estão na pose do prefab
+        if (animator != null && animator.isHuman)
+            feetRest.Capture(animator);
 
         rb = GetComponentInParent<Rigidbody>();
         playerMovement = GetComponentInParent<PlayerMovement>();
@@ -120,15 +120,46 @@ public class PlayerAnimator : MonoBehaviour
 
         // Speed: 1 = andando, 2 = correndo
         float run = Mathf.Clamp01(animator.GetFloat(speedParameter) - 1f);
-        float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
+        TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg, Mathf.Lerp(leftFootYaw, leftFootYawRun, run));
+        TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg, Mathf.Lerp(rightFootYaw, rightFootYawRun, run));
 
-        TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg,
-            Mathf.Lerp(Mathf.Lerp(leftFootYaw, leftFootYawRun, run), leftFootYawAir, air));
-        TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg,
-            Mathf.Lerp(Mathf.Lerp(rightFootYaw, rightFootYawRun, run), rightFootYawAir, air));
+        float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
+        feetRest.Apply(animator, air);
     }
 
     float airFootWeight;
+    FootRest feetRest;
+
+    // pose natural de cada pé em relação à canela (a do prefab, antes da primeira animação)
+    public struct FootRest
+    {
+        Quaternion left, right;
+        bool captured;
+
+        public void Capture(Animator animator)
+        {
+            Transform l = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            Transform r = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            if (l == null || r == null)
+                return;
+
+            left = l.localRotation;
+            right = r.localRotation;
+            captured = true;
+        }
+
+        // weight 1: pé na pose natural; 0: pé como a animação deixou
+        public void Apply(Animator animator, float weight)
+        {
+            if (!captured || weight <= 0f)
+                return;
+
+            Transform l = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            Transform r = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            l.localRotation = Quaternion.Slerp(l.localRotation, left, weight);
+            r.localRotation = Quaternion.Slerp(r.localRotation, right, weight);
+        }
+    }
 
     // 1 no ar (parâmetro Grounded falso, animação de queda), 0 no chão, com transição suave
     // (também usado pelo BossAnimator)
