@@ -130,7 +130,7 @@ public class BossAnimator : MonoBehaviour
 
         float air = PlayerAnimator.AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
         feetRest.Apply(animator, air);
-        swordGrip.Update(animator, air);
+        swordGrip.Update(animator, air, upperBodyLayer);
     }
 
     // 0 = parado (Idle), 1 = andando (Walk, estado Approach da IA, chegando perto),

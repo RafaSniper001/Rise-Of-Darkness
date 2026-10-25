@@ -125,19 +125,21 @@ public class PlayerAnimator : MonoBehaviour
 
         float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
         feetRest.Apply(animator, air);
-        swordGrip.Update(animator, air);
+        swordGrip.Update(animator, air, upperBodyLayer);
     }
 
     float airFootWeight;
     FootRest feetRest;
     HandGrip swordGrip;
 
-    // mão do sabre: as animações de queda e pouso (sem arma) abrem a mão. No chão guarda como
-    // os dedos da mão direita estão fechados no cabo; na queda e no pouso mantém essa pegada
+    // mão do sabre: as animações de queda e pouso (sem arma) abrem a mão. Andando, correndo ou
+    // parado (fora de ataque e poder) guarda a mão direita inteira, pulso e dedos, em relação
+    // ao antebraço; na queda e no pouso a mão fica exatamente assim
     public struct HandGrip
     {
         static readonly HumanBodyBones[] Fingers =
         {
+            HumanBodyBones.RightHand,
             HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal,
             HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal,
             HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal,
@@ -148,14 +150,27 @@ public class PlayerAnimator : MonoBehaviour
         Quaternion[] grip;
         bool recorded;
 
-        // weight 0 (no chão): guarda a pegada; acima disso puxa os dedos para ela
-        public void Update(Animator animator, float weight)
+        // weight 0 (no chão): guarda a pegada, só com a camada de cima livre (fora de ataque e
+        // poder, que giram o pulso); acima disso puxa a mão para ela
+        public void Update(Animator animator, float weight, int upperBodyLayer)
         {
             if (grip == null)
                 grip = new Quaternion[Fingers.Length];
 
-            if (weight > 0f && !recorded)
+            if (weight <= 0f)
+            {
+                bool free =
+                    upperBodyLayer >= animator.layerCount ||
+                    (animator.GetCurrentAnimatorStateInfo(upperBodyLayer).IsName("Empty") &&
+                     !animator.IsInTransition(upperBodyLayer));
+
+                if (!free)
+                    return;
+            }
+            else if (!recorded)
+            {
                 return;
+            }
 
             for (int i = 0; i < Fingers.Length; i++)
             {
