@@ -127,8 +127,8 @@ public class PlayerPower : MonoBehaviour
             }
         }
 
-        // no meio de um golpe: lança assim que o golpe terminar
-        // (antes o Espaço funcionava a qualquer momento)
+        // no meio de um golpe: o poder interrompe o golpe e sai na hora
+        // (PlayerAnimator.TryPlayPower)
         if (powerRequested)
         {
             if (!isCharged || isCasting)

@@ -218,15 +218,32 @@ public class PlayerAnimator : MonoBehaviour
         return false;
     }
 
+    // o poder interrompe o golpe de sabre em andamento: fecha o dano do sabre, descarta o
+    // combo e passa direto para a animação do poder (a transição do Animator só sai do Empty)
     public bool TryPlayPower()
     {
-        if (animator == null || action != Action.None)
+        if (animator == null || action == Action.Power)
             return false;
 
+        bool interrupting = action != Action.None;
+
         action = Action.Power;
+        comboQueued = false;
         AttackEnd();
+        animator.ResetTrigger(attackTrigger);
+        animator.ResetTrigger(comboTrigger);
         animator.SetFloat(powerSpeedParameter, powerRiseSpeed);
-        animator.SetTrigger(powerTrigger);
+
+        if (interrupting)
+        {
+            animator.ResetTrigger(powerTrigger);
+            animator.CrossFadeInFixedTime("Power", 0.05f, upperBodyLayer, 0f);
+        }
+        else
+        {
+            animator.SetTrigger(powerTrigger);
+        }
+
         return true;
     }
 
