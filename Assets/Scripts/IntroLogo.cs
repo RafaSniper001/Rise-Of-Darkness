@@ -9,9 +9,13 @@ public class IntroLogo : MonoBehaviour
     public CanvasGroup logo;
     public string nextScene = "MainMenu";
 
-    public float fadeInTime = 0.8f;
+    public float fadeInTime = 1.2f;
     public float holdTime = 2f;
     public float fadeOutTime = 0.8f;
+
+    // espera antes de começar: o primeiro quadro depois de carregar a cena demora e
+    // "comia" o fade de entrada (a logo aparecia de uma vez)
+    public float startDelay = 0.3f;
 
     bool leaving;
 
@@ -33,6 +37,14 @@ public class IntroLogo : MonoBehaviour
 
     IEnumerator Play()
     {
+        if (logo != null)
+            logo.alpha = 0f;
+
+        // deixa a cena assentar (o quadro do carregamento) antes do fade
+        yield return null;
+        yield return null;
+        yield return new WaitForSecondsRealtime(startDelay);
+
         yield return Fade(0f, 1f, fadeInTime);
         yield return new WaitForSeconds(holdTime);
         yield return Leave();
@@ -51,9 +63,10 @@ public class IntroLogo : MonoBehaviour
         if (logo == null)
             yield break;
 
-        for (float t = 0f; t < time; t += Time.unscaledDeltaTime)
+        // curva suave nas pontas; um quadro lento não pula mais que 1/30 s do fade
+        for (float t = 0f; t < time; t += Mathf.Min(Time.unscaledDeltaTime, 1f / 30f))
         {
-            logo.alpha = Mathf.Lerp(from, to, t / time);
+            logo.alpha = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / time));
             yield return null;
         }
 

@@ -9,11 +9,12 @@ using UnityEngine.UI;
 //    no fundo escuro padrão;
 // 2) quando ela termina, a cena Intro (a primeira da build) mostra só a logo da FANS, no mesmo
 //    fundo, com fade, e abre o menu principal (IntroLogo).
-// A logo da FANS usada é a versão clara (letras brancas e subtítulo em vermelho claro), feita
-// da original para aparecer no escuro
+// A logo da FANS usada é a original (azul); há também uma versão clara para fundo escuro
+// (letras brancas e subtítulo em vermelho claro) em Logo FANS Abertura.png
 public static class SplashLogo
 {
-    const string LogoPath = "Assets/Objects/Logo FANS Abertura.png";
+    // logo da Intro: a original (azul). A versão clara para fundo escuro é "Logo FANS Abertura.png"
+    const string LogoPath = "Assets/Objects/Logo FANS.png";
     const string IntroPath = "Assets/Scenes/Intro.unity";
 
     // fundo escuro padrão do Unity (o que o projeto usava antes)
