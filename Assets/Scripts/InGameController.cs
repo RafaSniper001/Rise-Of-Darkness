@@ -125,6 +125,7 @@ public class InGameController : MonoBehaviour
             GameManager.instance.ClearPlayerState();
         }
 
-        SceneManager.LoadScene(0);
+        // pelo nome: a cena 0 da build agora é a Intro (logo da FANS)
+        SceneManager.LoadScene("MainMenu");
     }
 }

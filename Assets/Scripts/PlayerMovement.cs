@@ -318,9 +318,16 @@ public class PlayerMovement : MonoBehaviour
         exhausted = false;
     }
 
-    void OnDisable()
+    // a morte desliga este script durante a animação e o liga de novo ao renascer:
+    // o cursor continua preso e escondido (antes ele aparecia na morte e só sumia
+    // pausando e continuando). As telas de vitória/derrota e o Voltar ao Menu soltam
+    // o cursor por conta própria
+    void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if (Time.timeScale > 0f)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 }
