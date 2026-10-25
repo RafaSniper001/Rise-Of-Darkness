@@ -46,6 +46,14 @@ public class PlayerAnimator : MonoBehaviour
     public float rightFootYaw = 0f;
     public float leftFootYawRun = 0f;
     public float rightFootYawRun = 0f;
+    // no ar (queda): o retarget da animação de queda deixa o pé direito ~70° virado para
+    // dentro e o esquerdo ~13°; medidos contra a animação original do Mixamo. No ar a
+    // correção da corrida não vale. Atenção: em torno da canela, positivo é para dentro
+    // no pé esquerdo e para fora no direito
+    public float leftFootYawAir = -13f;
+    public float rightFootYawAir = 71f;
+    // tempo para entrar e sair da correção do ar
+    public float airFootBlendTime = 0.15f;
 
     [Header("Queda")]
     // tempo fora do chão antes de trocar para a animação de queda
@@ -112,9 +120,23 @@ public class PlayerAnimator : MonoBehaviour
 
         // Speed: 1 = andando, 2 = correndo
         float run = Mathf.Clamp01(animator.GetFloat(speedParameter) - 1f);
+        float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
 
-        TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg, Mathf.Lerp(leftFootYaw, leftFootYawRun, run));
-        TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg, Mathf.Lerp(rightFootYaw, rightFootYawRun, run));
+        TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg,
+            Mathf.Lerp(Mathf.Lerp(leftFootYaw, leftFootYawRun, run), leftFootYawAir, air));
+        TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg,
+            Mathf.Lerp(Mathf.Lerp(rightFootYaw, rightFootYawRun, run), rightFootYawAir, air));
+    }
+
+    float airFootWeight;
+
+    // 1 no ar (parâmetro Grounded falso, animação de queda), 0 no chão, com transição suave
+    // (também usado pelo BossAnimator)
+    public static float AirWeight(Animator animator, string groundedParameter, ref float weight, float blendTime)
+    {
+        float target = animator.GetBool(groundedParameter) ? 0f : 1f;
+        weight = Mathf.MoveTowards(weight, target, Time.deltaTime / Mathf.Max(blendTime, 0.01f));
+        return weight;
     }
 
     // também usado pelo inimigo mago (BossAnimator), que tem o mesmo modelo

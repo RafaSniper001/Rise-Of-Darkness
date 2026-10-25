@@ -40,6 +40,11 @@ public class BossAnimator : MonoBehaviour
     public float rightFootYaw = 0f;
     public float leftFootYawRun = 0f;
     public float rightFootYawRun = 0f;
+    // no ar: mesma correção do player (mesmo modelo e mesma animação de queda)
+    public float leftFootYawAir = -13f;
+    public float rightFootYawAir = 71f;
+    public float airFootBlendTime = 0.15f;
+    float airFootWeight;
 
     [Header("Queda")]
     public float airborneDelay = 0.15f;
@@ -115,9 +120,12 @@ public class BossAnimator : MonoBehaviour
             return;
 
         float run = Mathf.Clamp01(animator.GetFloat(speedParameter) - 1f);
+        float air = PlayerAnimator.AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
 
-        PlayerAnimator.TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg, Mathf.Lerp(leftFootYaw, leftFootYawRun, run));
-        PlayerAnimator.TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg, Mathf.Lerp(rightFootYaw, rightFootYawRun, run));
+        PlayerAnimator.TurnFoot(animator, HumanBodyBones.LeftFoot, HumanBodyBones.LeftLowerLeg,
+            Mathf.Lerp(Mathf.Lerp(leftFootYaw, leftFootYawRun, run), leftFootYawAir, air));
+        PlayerAnimator.TurnFoot(animator, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg,
+            Mathf.Lerp(Mathf.Lerp(rightFootYaw, rightFootYawRun, run), rightFootYawAir, air));
     }
 
     // 0 = parado (Idle), 1 = andando (Walk, estado Approach da IA, chegando perto),
