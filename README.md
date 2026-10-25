@@ -1,67 +1,60 @@
 # Rise of Darkness (Ascensão das Trevas)
 
-**Data de criação:** 28/05/2026
+Jogo de ação em terceira pessoa feito na Unity (6000.3.3f1, URP) para a disciplina de Jogos Digitais (Entrega 2).
 
 **Autores:** Mateus Artur Santos; Rafael Araújo Nascimento
 
-## 1. Informações Gerais
+O documento de design completo está em
+[`GDD - Rise of Darkness - Atualizado v2 - Entrga Final - Jogos 1.docx`](GDD%20-%20Rise%20of%20Darkness%20-%20Atualizado%20v2%20-%20Entrga%20Final%20-%20Jogos%201.docx).
 
-### 1.1. Conceito
-Jogo de ação, onde o jogador controla um guerreiro das estrelas, usando um sabre de energia vermelho enquanto elimina inimigos e avança pela nave até conquistá-la por completo.
+## Sobre o jogo
 
-- **Gênero:** Ação.
-- **Mecânica:** A principal mecânica é o combate com o sabre de energia vermelho, que o jogador usa para eliminar os inimigos ao seu redor enquanto se movimenta pelas salas da nave. O personagem também possui stamina, que o permite deslocar no dobro da velocidade por um tempo determinado, útil para alcançar ou desviar de inimigos e obstáculos.
+Valek, um guerreiro das estrelas com um sabre de energia vermelho, invade uma nave inimiga e
+a conquista sala a sala, eliminando os soldados Klonar, Verminox e Noctar. Depois de encontrar o
+caixão da esposa, sai para a área externa, derrota o guerreiro fantasma Veyron e alcança a
+própria nave para vencer.
 
-### 1.2. Regras do Jogo
-- O jogador deve usar seu sabre de energia para eliminar todos os inimigos de cada sala.
-- Ao derrotar todos os inimigos, o jogador avança para a próxima fase.
-- Cada fase pode variar no número de inimigos e obstáculos presentes.
-- O objetivo final é chegar à última sala da nave, dominá-la e vencer o jogo.
-- Ao morrer, o personagem retorna ao início da fase atual.
+- **Combate com sabre**, com combo de dois golpes.
+- **Stamina** para correr.
+- **Aura**: carregada pelos acertos do sabre; aumenta vida, velocidade e dano e libera uma
+  explosão que causa dano em área e empurra os inimigos.
+- **Progressão por fases**, com checkpoints salvos, 3 vidas e dificuldade ajustável na pausa.
+- **Inimigos com IA no NavMesh**: robôs com patrulha, visão por raycast, perseguição, tiro e
+  busca; o boss com máquina de estados (Idle, Chase, Approach, Attack).
+- **Cenário destrutível**, armadilhas (lasers, laser móvel, torretas) e portas abertas por scanners.
 
-### 1.3. Controles
-O jogo é controlado pelo teclado:
+## Controles
 
-- **W** — Mover para frente
-- **A** — Mover para a esquerda
-- **S** — Mover para trás
-- **D** — Mover para a direita
-- **Mouse** — Rotaciona o personagem
-- **Botão esquerdo do mouse** — Atacar com o sabre de energia
-- **Shift** — Ativa a stamina enquanto segura (se usar toda a stamina, só poderá usar novamente quando ela for recarregada por completo)
-- **Esc** — Pausar o jogo
+| Tecla | Ação |
+|---|---|
+| W, A, S, D | Mover |
+| Mouse | Câmera |
+| Botão esquerdo | Atacar com o sabre (2º clique: combo) |
+| Shift (segurar) | Correr usando stamina |
+| Espaço | Explosão de aura (com a aura carregada; interrompe o golpe) |
+| Esc | Pausar |
 
-### 1.4. Referências
-O jogo tem como referência estética o LEGO Star Wars (Figura 1) — jogo de ação e aventura em terceira pessoa, com combate tanto no chão quanto em naves espaciais.
+## Cenas
 
-- **Figura 1:** (Vita) LEGO Star Wars: The Force Awakens review.
-  Disponível em https://kresnik258gaming.wordpress.com/2018/12/10/vita-lego-star-wars-the-force-awakens-review/
-- **Figura 2:** LEGO Star Wars: Darth Vader Minifigure with Lightsaber and Extra Black Cape (inspiração do personagem principal).
-  Disponível em http://amazon.com.br/LEGO-Star-Wars-Minifigure-Lightsaber/dp/B0BN93RGGB
-- **Figura 3:** 2002 — Attack of the LEGO Clones (inspiração dos inimigos).
-  Disponível em https://blocksmag.com/history-of-the-lego-star-wars-clone-trooper-phase-i/
+Na ordem da build: `Intro` (logo da FANS, depois da tela do Unity), `MainMenu`, `Scene 1`
+(nave inimiga), `Scene 2` (área externa e boss), `VictoryScene` e `DefeatScene`.
 
-O jogo tem como referência estética Star Wars (saga cinematográfica) e a franquia LEGO Star Wars, especialmente as figuras em LEGO de Darth Vader, que inspiram o design do personagem principal, e Clone Wars, que inspiram os inimigos.
+## Como abrir e gerar a build
 
-## 2. Personagens
+1. Abrir a pasta do projeto no Unity Hub com a versão **6000.3.3f1**.
+2. Para jogar no editor, abrir `Assets/Scenes/Intro.unity` (ou `MainMenu.unity`) e dar Play.
+3. Para a build de Windows: **File > Build Profiles**, plataforma Windows, **Build**. As cenas já
+   estão na lista na ordem certa.
 
-### Valek
-- **Tipo:** Player
-- **Descrição:** Guerreiro das estrelas inspirado no lado sombrio da Força. Veste uma armadura negra e empunha um sabre de energia de lâmina vermelha. Sua missão é conquistar a nave inimiga, eliminando toda a tripulação sala a sala. Possui alta habilidade de combate e uma stamina que o desloca rapidamente pelo campo de batalha.
+## Ferramentas de editor
 
-### Klonar
-- **Tipo:** Inimigo simples
-- **Descrição:** Soldados básicos da nave. Tropa usando armaduras brancas resistentes e rifles de energia. Representam a força militar principal da nave inimiga, sendo localizados na primeira sala.
+Em `Assets/Scripts/Editor` ficam ferramentas que montam partes do jogo pelos menus **Tools**
+(texturas e decoração da nave, NavMesh da cena 1, interface, efeitos de aura, abertura, boss no
+NavMesh e configuração dos personagens animados). Elas só rodam no editor e não entram na build.
 
-### Verminox
-- **Tipo:** Inimigo intermediário
-- **Descrição:** Unidades de elite agressivas, reconhecidas pelas armaduras vermelhas e treinamento avançado. Mais rápidos, precisos e violentos que os Klonars, servem como guardas especiais das áreas críticas da nave, sendo localizados na segunda sala.
+## Recursos de terceiros
 
-### Noctar
-- **Tipo:** Inimigo especialista
-- **Descrição:** A tropa final e mais temida. Guerreiros usando armaduras pretas táticas, são os soldados mais especializados. Operam como exterminadores de alta prioridade, sendo localizados na área mais importante da nave: a terceira e última sala.
-
-## 3. Level Design
-
-### 3.1. O mundo do jogo
-O jogo se passa inteiramente em uma nave espacial que voa no espaço. O jogador percorre as diferentes salas da nave, enfrentando inimigos e obstáculos em cada fase. A progressão ocorre sala a sala, até o jogador chegar à última sala da nave e dominá-la por completo, encontrando o caixão de sua esposa. O cenário muda de sala para sala, variando o número de inimigos e os obstáculos presentes.
+- Personagens e animações humanoides: Mixamo (Adobe).
+- Kits de modelos Kenney (Space Station, Space Kit, Graveyard e Furniture), licença CC0.
+- Texturas de metal: ambientCG, licença CC0.
+- Fontes Orbitron e Rajdhani: Google Fonts, licença SIL Open Font License.

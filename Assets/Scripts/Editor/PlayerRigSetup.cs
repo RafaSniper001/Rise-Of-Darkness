@@ -51,6 +51,50 @@ public static class PlayerRigSetup
         Debug.Log("[PlayerRigSetup] Concluído.");
     }
 
+    // ---------- mão do sabre na queda e no pouso ----------
+
+    // grava no player e no boss a pegada da animação parada (mão direita: pulso e dedos),
+    // que a queda e o pouso usam no lugar da mão aberta dessas animações
+    [MenuItem("Tools/Characters/Gravar Pegada do Sabre")]
+    public static void BakeSwordGrip()
+    {
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
+
+        foreach (string path in new[] { PlayerPrefab, MageEnemyPrefab })
+        {
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(path));
+            var animator = instance.GetComponentInChildren<Animator>();
+            animator.Rebind();
+            animator.SetBool("Grounded", true);
+            animator.SetFloat("Speed", 0f);
+            animator.Play("Locomotion", 0, 0.3f);
+            animator.Update(0f);
+            animator.Update(0.2f);
+
+            var pose = new Quaternion[PlayerAnimator.SwordGripBones.Length];
+            for (int i = 0; i < pose.Length; i++)
+                pose[i] = animator.GetBoneTransform(PlayerAnimator.SwordGripBones[i]).localRotation;
+            Object.DestroyImmediate(instance);
+
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var player = root.GetComponentInChildren<PlayerAnimator>(true);
+                if (player != null)
+                    player.swordGripPose = pose;
+                var boss = root.GetComponentInChildren<BossAnimator>(true);
+                if (boss != null)
+                    boss.swordGripPose = pose;
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log("[PlayerRigSetup] pegada do sabre gravada em " + path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+    }
+
     // ---------- pés: corrige o pé virado para fora ----------
 
     // ângulo (em torno do eixo vertical) entre a direção do pé (pé -> dedos) e a frente do modelo

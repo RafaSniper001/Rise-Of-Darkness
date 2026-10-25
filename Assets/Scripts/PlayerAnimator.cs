@@ -51,6 +51,10 @@ public class PlayerAnimator : MonoBehaviour
     // entrar nessa pose ao sair do chão e para sair dela no fim do pouso
     public float airFootBlendTime = 0.15f;
 
+    [Header("Mão do sabre")]
+    // pegada da animação parada (mão direita: pulso e dedos), usada na queda e no pouso
+    public Quaternion[] swordGripPose;
+
     [Header("Queda")]
     // tempo fora do chão antes de trocar para a animação de queda
     public float airborneDelay = 0.15f;
@@ -125,67 +129,36 @@ public class PlayerAnimator : MonoBehaviour
 
         float air = AirWeight(animator, groundedParameter, ref airFootWeight, airFootBlendTime);
         feetRest.Apply(animator, air);
-        swordGrip.Update(animator, air, upperBodyLayer);
+        ApplySwordGrip(animator, swordGripPose, air);
     }
 
     float airFootWeight;
     FootRest feetRest;
-    HandGrip swordGrip;
 
-    // mão do sabre: as animações de queda e pouso (sem arma) abrem a mão. Andando, correndo ou
-    // parado (fora de ataque e poder) guarda a mão direita inteira, pulso e dedos, em relação
-    // ao antebraço; na queda e no pouso a mão fica exatamente assim
-    public struct HandGrip
+    // mão do sabre: as animações de queda e pouso (sem arma) abrem a mão. Nelas a mão direita
+    // (pulso e dedos, em relação ao antebraço) fica na pegada da animação parada, que segura o
+    // cabo direito. A pegada é gravada no prefab pelo Setup Player Rig (Gravar Pegada do Sabre)
+    public static readonly HumanBodyBones[] SwordGripBones =
     {
-        static readonly HumanBodyBones[] Fingers =
+        HumanBodyBones.RightHand,
+        HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal,
+        HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal,
+        HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal,
+        HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate, HumanBodyBones.RightRingDistal,
+        HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal,
+    };
+
+    // weight 1: mão na pegada gravada; 0: como a animação deixou (também usado pelo BossAnimator)
+    public static void ApplySwordGrip(Animator animator, Quaternion[] pose, float weight)
+    {
+        if (weight <= 0f || pose == null || pose.Length != SwordGripBones.Length)
+            return;
+
+        for (int i = 0; i < SwordGripBones.Length; i++)
         {
-            HumanBodyBones.RightHand,
-            HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal,
-            HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal,
-            HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal,
-            HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate, HumanBodyBones.RightRingDistal,
-            HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal,
-        };
-
-        Quaternion[] grip;
-        bool recorded;
-
-        // weight 0 (no chão): guarda a pegada, só com a camada de cima livre (fora de ataque e
-        // poder, que giram o pulso); acima disso puxa a mão para ela
-        public void Update(Animator animator, float weight, int upperBodyLayer)
-        {
-            if (grip == null)
-                grip = new Quaternion[Fingers.Length];
-
-            if (weight <= 0f)
-            {
-                bool free =
-                    upperBodyLayer >= animator.layerCount ||
-                    (animator.GetCurrentAnimatorStateInfo(upperBodyLayer).IsName("Empty") &&
-                     !animator.IsInTransition(upperBodyLayer));
-
-                if (!free)
-                    return;
-            }
-            else if (!recorded)
-            {
-                return;
-            }
-
-            for (int i = 0; i < Fingers.Length; i++)
-            {
-                Transform bone = animator.GetBoneTransform(Fingers[i]);
-                if (bone == null)
-                    continue;
-
-                if (weight <= 0f)
-                    grip[i] = bone.localRotation;
-                else
-                    bone.localRotation = Quaternion.Slerp(bone.localRotation, grip[i], weight);
-            }
-
-            if (weight <= 0f)
-                recorded = true;
+            Transform bone = animator.GetBoneTransform(SwordGripBones[i]);
+            if (bone != null)
+                bone.localRotation = Quaternion.Slerp(bone.localRotation, pose[i], weight);
         }
     }
 
