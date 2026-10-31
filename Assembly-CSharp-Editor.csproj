@@ -47,8 +47,21 @@
     <Analyzer Include="D:\Unity 6000.3.3f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Editor\UIStyle.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
+    <Compile Include="Assets\Scripts\Editor\CharacterVariantBuilder.cs" />
+    <Compile Include="Assets\Scripts\Editor\ShipProps.cs" />
+    <Compile Include="Assets\Scripts\Editor\NavRebake.cs" />
     <Compile Include="Assets\Scripts\Editor\BuildScript.cs" />
+    <Compile Include="Assets\Scripts\Editor\PowerVfxBuilder.cs" />
+    <Compile Include="Assets\Scripts\Editor\SplashLogo.cs" />
+    <Compile Include="Assets\Scripts\Editor\AuraVfx.cs" />
+    <Compile Include="Assets\Scripts\Editor\PlayerRigSetup.cs" />
+    <Compile Include="Assets\Scripts\Editor\Phase3Entrance.cs" />
+    <Compile Include="Assets\Scripts\Editor\RobotRigSetup.cs" />
+    <Compile Include="Assets\Scripts\Editor\GaitMeasure.cs" />
+    <Compile Include="Assets\Scripts\Editor\BossNavSetup.cs" />
+    <Compile Include="Assets\Scripts\Editor\ShipTextures.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
