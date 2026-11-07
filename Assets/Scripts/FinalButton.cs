@@ -79,6 +79,14 @@ public class FinalButton : MonoBehaviour
             enemySpawner.SpawnWave(nextWave);
         }
 
+        // Occlusion Portal da porta: fechado enquanto a porta está fechada (a câmera não vê o
+        // que está atrás dela), aberto assim que ela começa a abrir
+        OcclusionPortal portal = door != null ? door.GetComponent<OcclusionPortal>() : null;
+        if (portal != null)
+        {
+            portal.open = true;
+        }
+
         if (doorAnimator != null)
         {
             doorAnimator.Play(animationStateName);

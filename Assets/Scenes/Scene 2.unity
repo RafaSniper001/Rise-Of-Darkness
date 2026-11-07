@@ -5,11 +5,11 @@ OcclusionCullingSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_OcclusionBakeSettings:
-    smallestOccluder: 5
-    smallestHole: 0.25
+    smallestOccluder: 3
+    smallestHole: 0.5
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: 831a0d8221f24e84e8e13df75243d6ab
+  m_OcclusionCullingData: {fileID: 36300000, guid: 5d1c1002a2a8e50449378b1c9041dc97, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -579,7 +579,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -752,7 +752,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294959313
   m_fontColor: {r: 0.82, g: 0.88, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -961,7 +961,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2473,7 +2473,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2803,7 +2803,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294959313
   m_fontColor: {r: 0.82, g: 0.88, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4137,6 +4137,22 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
       objectReference: {fileID: 2100000, guid: 21cb45645e5c199438782b8a3137cb34, type: 2}
+    - target: {fileID: -6372620159720347986, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -1935356804029805437, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -1177455879863648800, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -1018664272722485354, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: -1004385857308063228, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -4157,6 +4173,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Millennium Falcon completo
       objectReference: {fileID: 0}
+    - target: {fileID: 1559560168332703148, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2017416415091308040, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 2623438074134420092, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -4165,6 +4189,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
       objectReference: {fileID: 2100000, guid: 21cb45645e5c199438782b8a3137cb34, type: 2}
+    - target: {fileID: 4424396828587804706, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 6317578925029434746, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -4181,6 +4209,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
       objectReference: {fileID: 2100000, guid: 600e299b693d8eb499be4dd2f2bc86eb, type: 2}
+    - target: {fileID: 7335816240892044672, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 8100320773420232829, guid: 95dcc030c3d4a9543af4997cb62cd8ce, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -4517,7 +4549,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294959313
   m_fontColor: {r: 0.82, g: 0.88, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4943,7 +4975,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -5281,7 +5313,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190847
+    rgba: 4285230079
   m_fontColor: {r: 1, g: 0.42, b: 0.42, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6012,7 +6044,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6304,6 +6336,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 80662252}
     m_Modifications:
+    - target: {fileID: -8915270770852048890, guid: 8a0800fde4bb2054daf792e868ff3f23, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8a0800fde4bb2054daf792e868ff3f23, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.5513916
@@ -6802,7 +6838,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 18
   m_IsActive: 1
 --- !u!65 &1918130484
 BoxCollider:
@@ -7450,7 +7486,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4291280895
   m_fontColor: {r: 1, g: 0.75, b: 0.78, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -7620,7 +7656,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294952862
   m_fontColor: {r: 0.62, g: 0.78, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
