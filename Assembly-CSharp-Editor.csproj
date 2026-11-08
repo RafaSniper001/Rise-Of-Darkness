@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Editor\UIStyle.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
+    <Compile Include="Assets\Scripts\Editor\OcclusionSetup.cs" />
     <Compile Include="Assets\Scripts\Editor\CharacterVariantBuilder.cs" />
     <Compile Include="Assets\Scripts\Editor\ShipProps.cs" />
     <Compile Include="Assets\Scripts\Editor\NavRebake.cs" />
