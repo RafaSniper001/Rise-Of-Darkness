@@ -1,6 +1,6 @@
 # Rise of Darkness (Ascensão das Trevas)
 
-Jogo de ação em terceira pessoa feito na Unity (6000.3.3f1, URP) para a disciplina de Jogos Digitais (Entrega 2).
+Jogo de ação em terceira pessoa feito na Unity (6000.3.3f1, URP) para a disciplina de Jogos Digitais.
 
 **Autores:** Mateus Artur Santos; Rafael Araújo Nascimento
 
