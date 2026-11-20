@@ -46,11 +46,33 @@ Na ordem da build: `Intro` (logo da FANS, depois da tela do Unity), `MainMenu`, 
 3. Para a build de Windows: **File > Build Profiles**, plataforma Windows, **Build**. As cenas já
    estão na lista na ordem certa.
 
+## Otimização de desempenho
+
+Trabalho avaliativo "Otimização de Projetos na Unity 6". Foram aplicadas e medidas estas técnicas:
+
+- **Occlusion Area** nas cenas 1 e 2, cobrindo a nave inteira.
+- **Occlusion Culling**: objetos parados marcados como Occluder/Occludee Static (170 na cena 1 e
+  10 na cena 2) e bake feito nas duas cenas (`Assets/Scenes/Scene 1/` e `Scene 2/`).
+- **Occlusion Portals** nas 2 portas da cena 1, abertos pelo `FinalButton` junto com a
+  animação da porta.
+- **Sombras das luzes do sabre desligadas** nos prefabs `Player` e `Enemy 4` (14 luzes pontuais).
+  O brilho continua; só deixam de projetar sombra.
+- **Câmera** com Avoid Obstacles (Cinemachine), para não atravessar paredes.
+
+Resultado medido com o Stats e o Frame Debugger, antes e depois, na porta, nas fases 1 a 3 e na
+cena 2: de 52% a 88% menos batches e de 61% a 75% menos eventos de desenho por quadro.
+O relatório completo, com as capturas e a análise, está em
+[`Docs/Relatorio_Otimizacao_Rise_of_Darkness.pdf`](Docs/Relatorio_Otimizacao_Rise_of_Darkness.pdf).
+A análise de desempenho inicial está em
+[`Docs/Analise_de_Desempenho_Rise_of_Darkness.pdf`](Docs/Analise_de_Desempenho_Rise_of_Darkness.pdf).
+
 ## Ferramentas de editor
 
 Em `Assets/Scripts/Editor` ficam ferramentas que montam partes do jogo pelos menus **Tools**
 (texturas e decoração da nave, NavMesh da cena 1, interface, efeitos de aura, abertura, boss no
-NavMesh e configuração dos personagens animados). Elas só rodam no editor e não entram na build.
+NavMesh, configuração dos personagens animados e **Tools > Occlusion Culling**, que marca os
+objetos estáticos, coloca os portais e a área e refaz o bake das cenas 1 e 2). Elas só rodam no
+editor e não entram na build.
 
 ## Recursos de terceiros
 
