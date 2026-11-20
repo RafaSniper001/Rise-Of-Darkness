@@ -48,6 +48,7 @@ public static class OcclusionSetup
             int occluders = 0, occludeesOnly = 0, skipped = 0;
             MarkStatic(scene, ref occluders, ref occludeesOnly, ref skipped);
             int portals = AddPortals();
+            AddArea(scene);
             Debug.Log($"OcclusionSetup [{scene.name}]: {occluders} occluders+occludees, {occludeesOnly} só occludees, {skipped} móveis ignorados, {portals} portais");
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -111,6 +112,38 @@ public static class OcclusionSetup
                 if (g.GetComponent(m) != null) return true;
         }
         return false;
+    }
+
+    // Occlusion Area: caixa que cobre todo o ambiente jogável (todos os objetos estáticos
+    // marcados acima + margem). O bake só calcula a visibilidade dentro dela; fora dela
+    // nada é escondido.
+    static void AddArea(Scene scene)
+    {
+        bool has = false;
+        var b = new Bounds();
+        foreach (var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (r.gameObject.scene != scene) continue;
+            var f = GameObjectUtility.GetStaticEditorFlags(r.gameObject);
+            if ((f & StaticEditorFlags.OccludeeStatic) == 0) continue;
+            if (!has) { b = r.bounds; has = true; }
+            else b.Encapsulate(r.bounds);
+        }
+        if (!has) return;
+        b.Expand(6f);
+
+        var go = GameObject.Find("Occlusion Area");
+        if (go == null)
+        {
+            go = new GameObject("Occlusion Area");
+            go.AddComponent<OcclusionArea>();
+        }
+        go.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+        go.transform.localScale = Vector3.one;
+        var area = go.GetComponent<OcclusionArea>();
+        area.center = b.center;
+        area.size = b.size;
+        Debug.Log($"OcclusionSetup [{scene.name}]: Occlusion Area centro {b.center} tamanho {b.size}");
     }
 
     static int AddPortals()
